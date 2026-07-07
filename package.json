@@ -1,0 +1,9 @@
+{
+    "name": "devops-poc",
+    "version": "1.0.0", 
+    "description": "A simple DevOps project",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    }
+}
