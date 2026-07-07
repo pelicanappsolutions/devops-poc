@@ -1,24 +1,24 @@
 name: DevSecOps Pipeline
 
 on:
-    push:
-        branches: [ main ]
+  push:
+    branches: [main]
 
 jobs:
-    build-and-test:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout Code
-              uses: actions/checkout@v3
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-            - name: Run Security Scan (Trivy)
-              uses: aquasecurity/trivy-action@master
-              with:
-                image-ref: 'my-devops-app:${{ github.sha }}'
-                format: 'table'
-                exit-code: '1' # Makes pipeline fail if vulnerabilities are found
-                severity: 'CRITICAL,HIGH' # Only fail on these severities
+      - name: Build Docker Image
+        run: |
+          docker build -t my-devops-app:${{ github.sha }} .
 
-            - name: Build Docker Image
-              run: |
-                docker build -t my-devops-app .
+      - name: Run Security Scan (Trivy)
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: my-devops-app:${{ github.sha }}
+          format: table
+          exit-code: 1
+          severity: CRITICAL,HIGH
