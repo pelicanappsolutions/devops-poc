@@ -1,0 +1,11 @@
+{
+  "name": "cgi-devops-interview-practice",
+  "version": "1.0.0",
+  "description": "A small DevOps practice project for Linux, Docker, Kubernetes, Azure, CI/CD, and interview prep.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "smoke": "node scripts/smoke-test.js"
+  },
+  "license": "MIT"
+}

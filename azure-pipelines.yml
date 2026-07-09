@@ -1,0 +1,34 @@
+trigger:
+  branches:
+    include:
+      - main
+
+variables:
+  imageName: 'cgi-devops-practice-app'
+  dockerfilePath: 'Dockerfile'
+
+stages:
+  - stage: Build
+    displayName: Build and Test
+    jobs:
+      - job: Build
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - script: |
+              node --version
+              npm --version
+              npm run smoke &
+              APP_PID=$!
+              sleep 3
+              curl -f http://localhost:3000/healthz
+              kill $APP_PID
+            displayName: 'Run smoke test'
+
+          - script: |
+              docker build -t $(imageName):$(Build.SourceVersion) -f $(dockerfilePath) .
+              docker image ls | head
+            displayName: 'Build Docker image'
+
+  # In a real Azure DevOps setup, add a service connection to Azure Container Registry
+  # and AKS, then push the image and deploy the Kubernetes manifests.
