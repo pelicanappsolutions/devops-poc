@@ -4,7 +4,7 @@ trigger:
       - main
 
 variables:
-  imageName: 'cgi-devops-practice-app'
+  imageName: 'devops-poc-app'
   dockerfilePath: 'Dockerfile'
 
 stages:

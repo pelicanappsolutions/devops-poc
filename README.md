@@ -1,4 +1,4 @@
-# CGI DevOps Interview Practice Project
+# DevOps POC Project
 
 This project upgrades your original small DevOps POC into a full interview-practice lab covering:
 
@@ -33,7 +33,7 @@ curl http://localhost:3000/error
 bash scripts/linux_command_lab.sh
 ```
 
-This creates a safe lab in `/tmp/cgi-devops-linux-lab` and practices:
+This creates a safe lab in `/tmp/devops-poc-linux-lab` and practices:
 
 - `pwd`, `ls`, `cd`
 - `cat`, `head`, `tail`
@@ -72,13 +72,13 @@ bash scripts/docker_lab.sh
 Useful commands:
 
 ```bash
-docker build -t cgi-devops-practice-app:local .
-docker run -d --name cgi-devops-practice-app -p 3000:3000 cgi-devops-practice-app:local
+docker build -t devops-poc-app:local .
+docker run -d --name devops-poc-app -p 3000:3000 devops-poc-app:local
 docker ps
-docker logs cgi-devops-practice-app
-docker exec -it cgi-devops-practice-app sh
-docker inspect cgi-devops-practice-app
-docker stop cgi-devops-practice-app
+docker logs devops-poc-app
+docker exec -it devops-poc-app sh
+docker inspect devops-poc-app
+docker stop devops-poc-app
 ```
 
 ## Kubernetes lab
@@ -88,16 +88,16 @@ For local Kubernetes, use Docker Desktop Kubernetes, minikube, kind, or another 
 Build image:
 
 ```bash
-docker build -t cgi-devops-practice-app:local .
+docker build -t devops-poc-app:local .
 ```
 
 Apply manifests:
 
 ```bash
 kubectl apply -f k8s/
-kubectl get all -n cgi-devops-practice
-kubectl logs -n cgi-devops-practice -l app=cgi-devops-practice-app
-kubectl port-forward -n cgi-devops-practice service/cgi-devops-practice-service 3000:80
+kubectl get all -n devops-poc
+kubectl logs -n devops-poc -l app=devops-poc-app
+kubectl port-forward -n devops-poc service/devops-poc-service 3000:80
 curl http://localhost:3000/healthz
 ```
 

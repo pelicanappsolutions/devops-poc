@@ -24,14 +24,14 @@ const server = http.createServer((req, res) => {
     return text(
       res,
       200,
-      `Hello from the CGI DevOps practice app.\nEnvironment: ${environment}\nVersion: ${version}\n`
+      `Hello from the DevOps POC app.\nEnvironment: ${environment}\nVersion: ${version}\n`
     );
   }
 
   if (path === '/healthz') {
     return json(res, 200, {
       status: 'ok',
-      service: 'cgi-devops-practice-app',
+      service: 'devops-poc-app',
       uptimeSeconds: Math.floor(process.uptime()),
       startedAt: startTime.toISOString()
     });

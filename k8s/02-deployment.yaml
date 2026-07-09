@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cgi-devops-practice-app
-  namespace: cgi-devops-practice
+  name: devops-poc-app
+  namespace: devops-poc
   labels:
-    app: cgi-devops-practice-app
+    app: devops-poc-app
 spec:
   replicas: 2
   revisionHistoryLimit: 3
   selector:
     matchLabels:
-      app: cgi-devops-practice-app
+    app: devops-poc-app
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -19,17 +19,17 @@ spec:
   template:
     metadata:
       labels:
-        app: cgi-devops-practice-app
+        app: devops-poc-app
     spec:
       containers:
         - name: app
-          image: cgi-devops-practice-app:local
+          image: devops-poc-app:local
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
           envFrom:
             - configMapRef:
-                name: cgi-devops-practice-config
+              name: devops-poc-config
           resources:
             requests:
               cpu: "50m"

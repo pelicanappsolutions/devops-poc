@@ -2,7 +2,7 @@
 set -euo pipefail
 
 APP_URL="${APP_URL:-http://localhost:3000}"
-SERVICE_NAME="${SERVICE_NAME:-cgi-devops-practice-app}"
+SERVICE_NAME="${SERVICE_NAME:-devops-poc-app}"
 
 section() {
   printf '\n========== %s ==========\n' "$1"
@@ -38,8 +38,8 @@ run "docker logs --tail=50 $SERVICE_NAME 2>/dev/null"
 
 section "5. Kubernetes checks"
 run "kubectl get pods -A 2>/dev/null | head"
-run "kubectl get all -n cgi-devops-practice 2>/dev/null"
-run "kubectl logs -n cgi-devops-practice -l app=cgi-devops-practice-app --tail=50 2>/dev/null"
+run "kubectl get all -n devops-poc 2>/dev/null"
+run "kubectl logs -n devops-poc -l app=devops-poc-app --tail=50 2>/dev/null"
 
 section "Interview answer"
 cat <<'ANSWER'

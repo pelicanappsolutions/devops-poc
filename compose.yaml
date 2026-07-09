@@ -1,8 +1,8 @@
 services:
   app:
     build: .
-    image: cgi-devops-practice-app:local
-    container_name: cgi-devops-practice-app
+    image: devops-poc-app:local
+    container_name: devops-poc-app
     ports:
       - "3000:3000"
     environment:

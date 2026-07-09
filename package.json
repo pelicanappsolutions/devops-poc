@@ -1,5 +1,5 @@
 {
-  "name": "cgi-devops-interview-practice",
+  "name": "devops-poc",
   "version": "1.0.0",
   "description": "A small DevOps practice project for Linux, Docker, Kubernetes, Azure, CI/CD, and interview prep.",
   "main": "server.js",

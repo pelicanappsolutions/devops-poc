@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-LAB_DIR="/tmp/cgi-devops-linux-lab"
+LAB_DIR="/tmp/devops-poc-linux-lab"
 APP_LOG="$LAB_DIR/logs/app.log"
 
 line() {
