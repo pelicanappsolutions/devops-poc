@@ -1,0 +1,1774 @@
+<title>DevOps Interview Practice Hub</title>
+<style>
+  :root{
+    --bg: #10131a;
+    --panel: #181c26;
+    --panel-raised: #1e2330;
+    --border: #2a3040;
+    --text: #e7e4da;
+    --text-dim: #7d8598;
+    --text-faint: #4b5164;
+    --accent: #ff9d3d;
+    --accent-dim: #c97a2e;
+    --accent-glow: rgba(255, 157, 61, 0.18);
+    --success: #7fd67f;
+    --success-glow: rgba(127, 214, 127, 0.14);
+    --error: #ff6b6b;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Consolas, "Liberation Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin: 0; min-height: 100vh;
+    background: radial-gradient(60% 50% at 50% 0%, var(--accent-glow), transparent 70%), var(--bg);
+    color: var(--text); font-family: var(--sans);
+    padding: clamp(16px, 4vw, 40px);
+    display: flex; justify-content: center;
+  }
+  .page{ width: 100%; max-width: 960px; display: flex; flex-direction: column; gap: 18px; }
+
+  header{ display: flex; flex-direction: column; gap: 4px; }
+  .eyebrow{ font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+  h1{ margin: 0; font-size: clamp(24px, 3.4vw, 32px); font-weight: 700; letter-spacing: -0.01em; text-wrap: balance; }
+  .sub{ color: var(--text-dim); font-size: 14.5px; max-width: 68ch; line-height: 1.5; }
+
+  /* ---------- Hub grid ---------- */
+  .hub-grid{ display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+  .lab-card{
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px; display: flex; flex-direction: column; gap: 12px; cursor: pointer;
+    text-align: left; font-family: var(--sans); color: var(--text);
+    transition: border-color .15s ease, transform .15s ease;
+  }
+  .lab-card:hover{ border-color: var(--accent-dim); transform: translateY(-2px); }
+  .lab-card:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
+  .card-top{ display: flex; align-items: center; gap: 10px; }
+  .badge{
+    width: 38px; height: 38px; border-radius: 8px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-weight: 700; font-size: 12px;
+    background: var(--panel-raised); color: var(--accent); border: 1px solid var(--border);
+  }
+  .card-title{ font-size: 16px; font-weight: 650; }
+  .card-tagline{ font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+  .card-progress{ margin-top: auto; display: flex; flex-direction: column; gap: 6px; }
+  .card-progress-label{ font-family: var(--mono); font-size: 11.5px; color: var(--text-faint); display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; }
+  .bar{ height: 5px; border-radius: 3px; background: var(--panel-raised); overflow: hidden; }
+  .bar-fill{ height: 100%; background: var(--accent); border-radius: 3px; transition: width .2s ease; }
+  .bar-fill.complete{ background: var(--success); }
+
+  .hub-summary{ font-family: var(--mono); font-size: 12.5px; color: var(--text-dim); }
+  .hub-summary b{ color: var(--text); }
+
+  /* ---------- Lab nav ---------- */
+  .lab-nav{ display: flex; align-items: center; gap: 10px; }
+  .back-btn{
+    font-family: var(--sans); font-size: 13px; font-weight: 600; color: var(--text-dim);
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 12px; cursor: pointer;
+  }
+  .back-btn:hover{ border-color: var(--accent-dim); color: var(--text); }
+  .lab-nav .lab-name{ font-family: var(--mono); font-size: 12.5px; color: var(--text-faint); }
+
+  /* ---------- Progress strip ---------- */
+  .progress-row{ display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .chips{ display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip{
+    width: 22px; height: 22px; border-radius: 5px; border: 1px solid var(--border); background: var(--panel);
+    display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 11px;
+    color: var(--text-faint); transition: all .15s ease;
+  }
+  .chip.current{ border-color: var(--accent); color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+  .chip.done{ background: var(--success-glow); border-color: var(--success); color: var(--success); }
+  .score{ font-family: var(--mono); font-size: 13px; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+  .score b{ color: var(--text); }
+
+  /* ---------- Objective panel ---------- */
+  .objective{ background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; }
+  .objective-label{ font-family: var(--mono); font-size: 12px; color: var(--accent); letter-spacing: 0.06em; }
+  .objective-title{ font-size: 17px; font-weight: 650; margin: 0; }
+  .objective-prompt{ color: var(--text); font-size: 14.5px; line-height: 1.55; max-width: 68ch; }
+  .objective-prompt code{ font-family: var(--mono); background: var(--panel-raised); padding: 1px 5px; border-radius: 4px; font-size: 0.92em; }
+  .objective-controls{ display: flex; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
+  button.ctrl{
+    font-family: var(--sans); font-size: 12.5px; font-weight: 600; background: var(--panel-raised); color: var(--text-dim);
+    border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; cursor: pointer;
+    transition: border-color .15s ease, color .15s ease;
+  }
+  button.ctrl:hover{ border-color: var(--accent-dim); color: var(--text); }
+  button.ctrl:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
+  .hint-box{ display: none; font-family: var(--mono); font-size: 13px; background: var(--panel-raised); border: 1px dashed var(--border); border-radius: 6px; padding: 10px 12px; color: var(--text-dim); line-height: 1.6; }
+  .hint-box.open{ display: block; }
+  .hint-box .cmd{ color: var(--accent); }
+  .all-done{ display: none; align-items: center; gap: 10px; font-size: 14.5px; color: var(--success); }
+  .all-done.show{ display: flex; }
+  .freetext-row{ display: none; gap: 8px; margin-top: 4px; }
+  .freetext-row.show{ display: flex; flex-wrap: wrap; }
+  .freetext-row input{
+    flex: 1; min-width: 200px; background: var(--panel-raised); border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 10px; color: var(--text); font-family: var(--sans); font-size: 13.5px;
+  }
+  .freetext-row input:focus{ outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  /* ---------- Terminal window ---------- */
+  .term-window{ background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; box-shadow: 0 30px 60px -30px rgba(0,0,0,0.6); display: flex; flex-direction: column; }
+  .term-bar{ display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: var(--panel-raised); border-bottom: 1px solid var(--border); }
+  .dot{ width: 10px; height: 10px; border-radius: 50%; opacity: 0.55; }
+  .dot.r{ background: #ff6b6b; } .dot.y{ background: #ffbe5c; } .dot.g{ background: #7fd67f; }
+  .term-title{ margin: 0 auto; font-family: var(--mono); font-size: 12.5px; color: var(--text-faint); }
+  .term-body{ height: 380px; overflow-y: auto; padding: 16px 18px; font-family: var(--mono); font-size: 13.5px; line-height: 1.65; }
+  .line-cmd{ color: var(--text); white-space: pre-wrap; word-break: break-word; }
+  .line-cmd .prompt-sym{ color: var(--accent); } .line-cmd .prompt-user{ color: var(--success); }
+  .line-out{ color: var(--text-dim); white-space: pre-wrap; word-break: break-word; margin: 2px 0 10px; }
+  .line-err{ color: var(--error); white-space: pre-wrap; word-break: break-word; margin: 2px 0 10px; }
+  .line-ok{ color: var(--success); margin: 0 0 10px; font-weight: 600; white-space: pre-wrap; }
+  .line-sys{ color: var(--text-faint); font-style: italic; margin: 2px 0 10px; white-space: pre-wrap; }
+  .term-input-row{ display: flex; align-items: center; gap: 8px; padding: 10px 18px 14px; border-top: 1px solid var(--border); }
+  .term-input-row .prompt-sym{ color: var(--accent); font-family: var(--mono); font-size: 13.5px; }
+  .term-input-row .prompt-user{ color: var(--success); font-family: var(--mono); font-size: 13.5px; }
+  #cmdInput{ flex: 1; background: transparent; border: none; outline: none; color: var(--text); font-family: var(--mono); font-size: 13.5px; caret-color: var(--accent); }
+  #cmdInput::placeholder{ color: var(--text-faint); }
+
+  /* ---------- Cheat sheet ---------- */
+  details.cheat{ background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 4px 20px; }
+  details.cheat summary{ cursor: pointer; padding: 12px 0; font-size: 13px; font-weight: 600; color: var(--text-dim); font-family: var(--mono); letter-spacing: 0.02em; }
+  details.cheat summary:hover{ color: var(--text); }
+  .cheat-grid{ display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px 18px; padding: 4px 0 16px; font-family: var(--mono); font-size: 12.5px; color: var(--text-dim); }
+  .cheat-grid b{ color: var(--accent); font-weight: 600; }
+
+  ::-webkit-scrollbar{ width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track{ background: transparent; }
+  ::-webkit-scrollbar-thumb{ background: var(--border); border-radius: 6px; }
+  ::-webkit-scrollbar-thumb:hover{ background: var(--accent-dim); }
+
+  @media (prefers-reduced-motion: reduce){ *{ transition: none !important; animation: none !important; } }
+</style>
+
+<div class="page">
+  <header>
+    <div class="eyebrow">Interview prep &middot; sandbox shells</div>
+    <h1 id="pageTitle">DevOps Practice Labs</h1>
+    <p class="sub" id="pageSub">Five live sandboxes &mdash; Linux, Docker, Kubernetes, Azure/AKS, and a real troubleshooting scenario. Type real commands, get real (simulated) output, and objectives check off automatically.</p>
+  </header>
+
+  <div id="hubView">
+    <div class="hub-grid" id="hubGrid"></div>
+    <p class="hub-summary" id="hubSummary"></p>
+  </div>
+
+  <div id="labView" style="display:none">
+    <div class="lab-nav" style="margin-bottom:14px;">
+      <button class="back-btn" id="homeBtn" type="button">&larr; All labs</button>
+      <span class="lab-name" id="labNameTag"></span>
+    </div>
+
+    <div class="progress-row" style="margin-bottom:14px;">
+      <div class="chips" id="chips"></div>
+      <div class="score" id="score"></div>
+    </div>
+
+    <div class="objective" id="objectivePanel" style="margin-bottom:18px;">
+      <div class="objective-head">
+        <span class="objective-label" id="objLabel"></span>
+      </div>
+      <h2 class="objective-title" id="objTitle"></h2>
+      <p class="objective-prompt" id="objPrompt"></p>
+      <div class="objective-controls">
+        <button class="ctrl" id="hintBtn" type="button">Show hint</button>
+        <button class="ctrl" id="skipBtn" type="button">Skip &rarr;</button>
+        <button class="ctrl" id="resetBtn" type="button">Reset this lab</button>
+      </div>
+      <div class="hint-box" id="hintBox"></div>
+      <div class="freetext-row" id="freetextRow">
+        <input id="freetextInput" type="text" autocomplete="off" placeholder="type your answer&hellip;" />
+        <button class="ctrl" id="freetextSubmit" type="button">Submit answer</button>
+      </div>
+      <div class="all-done" id="allDone">All objectives in this lab are solved.</div>
+    </div>
+
+    <div class="term-window" style="margin-bottom:18px;">
+      <div class="term-bar">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <p class="term-title" id="termTitle"></p>
+      </div>
+      <div class="term-body" id="termBody"></div>
+      <div class="term-input-row">
+        <span class="prompt-user">kali</span><span class="prompt-sym">@<span id="livePromptBase"></span>:<span id="livePromptPath">~</span>$</span>
+        <input id="cmdInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="type a command &middot; Tab to autocomplete &middot; &uarr;&darr; for history" />
+      </div>
+    </div>
+
+    <details class="cheat">
+      <summary>Supported commands &amp; flags</summary>
+      <div class="cheat-grid" id="cheatGrid"></div>
+    </details>
+  </div>
+</div>
+
+<script>
+(function(){
+
+  // =================================================================
+  // Generic shell engine (shared by every lab)
+  // =================================================================
+  function splitPipes(str){
+    var parts = [], cur = '', quote = null;
+    for (var i = 0; i < str.length; i++){
+      var c = str[i];
+      if (quote){ cur += c; if (c === quote) quote = null; continue; }
+      if (c === "'" || c === '"'){ quote = c; cur += c; continue; }
+      if (c === '|'){ parts.push(cur); cur = ''; continue; }
+      cur += c;
+    }
+    parts.push(cur);
+    return parts.map(function(p){ return p.trim(); }).filter(Boolean);
+  }
+
+  function tokenize(str){
+    var tokens = [], cur = '', quote = null;
+    for (var i = 0; i < str.length; i++){
+      var c = str[i];
+      if (quote){ if (c === quote){ quote = null; } else { cur += c; } continue; }
+      if (c === "'" || c === '"'){ quote = c; continue; }
+      if (c === ' ' || c === '\t'){ if (cur.length){ tokens.push(cur); cur = ''; } continue; }
+      cur += c;
+    }
+    if (cur.length) tokens.push(cur);
+    return tokens;
+  }
+
+  function parseArgs(argv, valueFlags){
+    var flags = {}, values = {}, positional = [];
+    for (var i = 0; i < argv.length; i++){
+      var a = argv[i];
+      if (a.length > 1 && a[0] === '-' && a[1] !== '-'){
+        var body = a.slice(1), j = 0;
+        while (j < body.length){
+          var ch = body[j];
+          if (valueFlags.indexOf(ch) !== -1){
+            var rest = body.slice(j + 1);
+            if (rest.length){ values[ch] = rest; } else { i++; values[ch] = argv[i]; }
+            j = body.length;
+          } else { flags[ch] = true; j++; }
+        }
+      } else { positional.push(a); }
+    }
+    return { flags: flags, values: values, positional: positional };
+  }
+
+  function splitLines(text){
+    if (text === '') return [];
+    var t = text.charAt(text.length - 1) === '\n' ? text.slice(0, -1) : text;
+    return t.split('\n');
+  }
+
+  function resolvePath(cwd, input){
+    if (input === undefined || input === '') return cwd;
+    if (input === '~') return '';
+    var isAbs = input.charAt(0) === '/';
+    var stack = isAbs ? [] : (cwd ? cwd.split('/') : []);
+    input.replace(/^\/+/, '').split('/').forEach(function(part){
+      if (part === '' || part === '.') return;
+      if (part === '..'){ if (stack.length) stack.pop(); return; }
+      stack.push(part);
+    });
+    return stack.join('/');
+  }
+
+  function readFile(files, resolvedPath, rawLabel){
+    var f = files[resolvedPath];
+    if (!f) throw new Error((rawLabel !== undefined ? rawLabel : resolvedPath) + ': No such file or directory');
+    return f.content;
+  }
+
+  function sourceText(files, positional, stdin, cwd){
+    if (!positional.length){
+      if (stdin === null) throw new Error('missing operand and no piped input');
+      return stdin;
+    }
+    return positional.map(function(p){ return readFile(files, resolvePath(cwd, p), p); }).join('');
+  }
+
+  function escapeRe(s){ return s.replace(/[.*+^${}()|[\]\\]/g, '\\$&'); }
+
+  function normalize(text){
+    return text.split('\n').map(function(l){ return l.replace(/\s+$/, ''); }).join('\n').trim();
+  }
+
+  function cloneFs(src){
+    var out = {};
+    for (var k in src){ out[k] = { content: src[k].content, exec: src[k].exec }; }
+    return out;
+  }
+
+  function formatLsLine(f, label){
+    var modeStr = f.exec ? 'rwxrwxr-x' : 'rw-rw-r--';
+    var size = String(f.content.length);
+    while (size.length < 6) size = ' ' + size;
+    return '-' + modeStr + ' 1 kali kali ' + size + ' Jul  9 22:00 ' + label;
+  }
+
+  function dirHasEntries(files, resolvedDir){
+    if (resolvedDir === '') return true;
+    var prefix = resolvedDir + '/';
+    return Object.keys(files).some(function(p){ return p.indexOf(prefix) === 0; });
+  }
+
+  // rows: array of arrays of strings, aligned like a CLI table (2-space gaps, left-aligned).
+  function padTo(str, width){
+    var out = str;
+    while (out.length < width) out += ' ';
+    return out;
+  }
+  function formatTable(headers, rows){
+    var cols = headers.length;
+    var strRows = rows.map(function(r){
+      return r.map(function(cell){ return cell === undefined || cell === null ? '' : String(cell); });
+    });
+    var widths = headers.map(function(h){ return h.length; });
+    strRows.forEach(function(r){
+      for (var i = 0; i < cols; i++){ widths[i] = Math.max(widths[i], (r[i] || '').length); }
+    });
+    function padRow(r){
+      return r.map(function(cell, i){
+        return i === cols - 1 ? cell : padTo(cell, widths[i] + 3);
+      }).join('');
+    }
+    var lines = [padRow(headers)];
+    strRows.forEach(function(r){ lines.push(padRow(r)); });
+    return lines.join('\n') + '\n';
+  }
+
+  // Lightweight flag scanner for CLIs that mix -x, -it, --name, --name=val (docker/kubectl/az style).
+  function scanFlags(argv, valueFlags){
+    var flags = {}, values = {}, positional = [];
+    for (var i = 0; i < argv.length; i++){
+      var a = argv[i];
+      if (a.indexOf('--') === 0){
+        var body = a.slice(2), eq = body.indexOf('=');
+        if (eq !== -1){ values[body.slice(0, eq)] = body.slice(eq + 1); }
+        else if (valueFlags.indexOf(body) !== -1){ values[body] = argv[++i]; }
+        else { flags[body] = true; }
+      } else if (a.indexOf('-') === 0 && a.length > 1){
+        var short = a.slice(1);
+        if (valueFlags.indexOf(short) !== -1){ values[short] = argv[++i]; }
+        else { flags[short] = true; }
+      } else {
+        positional.push(a);
+      }
+    }
+    return { flags: flags, values: values, positional: positional };
+  }
+
+  function runPipeline(input, files, cwdState, commands){
+    var stages = splitPipes(input);
+    if (!stages.length) return { ok: true, output: '' };
+    var data = null;
+    for (var i = 0; i < stages.length; i++){
+      var argv = tokenize(stages[i]);
+      if (!argv.length) return { ok: false, error: 'syntax error near unexpected token' };
+      var name = argv[0], args = argv.slice(1);
+      var fn = commands[name];
+      if (!fn) return { ok: false, error: 'bash: ' + name + ': command not found' };
+      try { data = fn(args, data, files, cwdState); }
+      catch (e) { return { ok: false, error: name + ': ' + e.message }; }
+    }
+    return { ok: true, output: data === null ? '' : data };
+  }
+
+  window.__engine = {
+    splitPipes: splitPipes, tokenize: tokenize, parseArgs: parseArgs, splitLines: splitLines,
+    resolvePath: resolvePath, readFile: readFile, sourceText: sourceText, escapeRe: escapeRe,
+    normalize: normalize, cloneFs: cloneFs, formatLsLine: formatLsLine, dirHasEntries: dirHasEntries,
+    runPipeline: runPipeline, formatTable: formatTable, scanFlags: scanFlags
+  };
+
+})();
+</script>
+
+<script>
+(function(){
+  var E = window.__engine;
+  var parseArgs = E.parseArgs, sourceText = E.sourceText, splitLines = E.splitLines,
+      resolvePath = E.resolvePath, readFile = E.readFile, escapeRe = E.escapeRe,
+      formatLsLine = E.formatLsLine, dirHasEntries = E.dirHasEntries;
+
+  // Every lab gets these Unix text tools for free, regardless of domain.
+  var BASE_COMMANDS = {
+    pwd: function(argv, stdin, files, cwdState){
+      return '/home/kali/practice-lab' + (cwdState.value ? '/' + cwdState.value : '') + '\n';
+    },
+    hostname: function(){ return 'kali\n'; },
+    echo: function(argv){ return argv.join(' ') + '\n'; },
+
+    cd: function(argv, stdin, files, cwdState){
+      var p = parseArgs(argv, []);
+      var raw = p.positional[0];
+      if (raw === undefined || raw === '~'){ cwdState.value = ''; return ''; }
+      var resolved = resolvePath(cwdState.value, raw);
+      if (resolved !== '' && files[resolved]) throw new Error('not a directory: ' + raw);
+      if (!dirHasEntries(files, resolved)) throw new Error(raw + ': No such file or directory');
+      cwdState.value = resolved;
+      return '';
+    },
+
+    cat: function(argv, stdin, files, cwdState){
+      var p = parseArgs(argv, []);
+      if (!p.positional.length) return stdin === null ? '' : stdin;
+      return p.positional.map(function(f){ return readFile(files, resolvePath(cwdState.value, f), f); }).join('');
+    },
+
+    head: function(argv, stdin, files, cwdState){
+      var p = parseArgs(argv, ['n']);
+      var n = p.values.n ? parseInt(p.values.n, 10) : 10;
+      var text = sourceText(files, p.positional, stdin, cwdState.value);
+      var lines = splitLines(text);
+      var out = lines.slice(0, n);
+      return out.length ? out.join('\n') + '\n' : '';
+    },
+
+    tail: function(argv, stdin, files, cwdState){
+      var p = parseArgs(argv, ['n']);
+      var n = p.values.n ? parseInt(p.values.n, 10) : 10;
+      var text = sourceText(files, p.positional, stdin, cwdState.value);
+      var lines = splitLines(text);
+      var out = n === 0 ? [] : lines.slice(-n);
+      return out.length ? out.join('\n') + '\n' : '';
+    },
+
+    grep: function(argv, stdin, files, cwdState){
+      var p = parseArgs(argv, []);
+      var pattern = p.positional[0];
+      if (pattern === undefined) throw new Error('missing pattern');
+      var fileArgs = p.positional.slice(1);
+      var text = sourceText(files, fileArgs, stdin, cwdState.value);
+      var lines = splitLines(text);
+      var re;
+      try { re = new RegExp(pattern, p.flags.i ? 'i' : ''); }
+      catch (e) { throw new Error('invalid pattern'); }
+      var matched = lines.filter(function(l){ return re.test(l); });
+      if (p.flags.v) matched = lines.filter(function(l){ return !re.test(l); });
+      if (p.flags.c) return String(matched.length) + '\n';
+      return matched.length ? matched.join('\n') + '\n' : '';
+    },
+
+    wc: function(argv, stdin, files, cwdState){
+      var p = parseArgs(argv, []);
+      var text = sourceText(files, p.positional, stdin, cwdState.value);
+      var lines = splitLines(text);
+      var trimmed = text.trim();
+      var words = trimmed.length ? trimmed.split(/\s+/).length : 0;
+      var chars = text.length;
+      if (p.flags.l) return String(lines.length) + '\n';
+      if (p.flags.w) return String(words) + '\n';
+      if (p.flags.c) return String(chars) + '\n';
+      return lines.length + ' ' + words + ' ' + chars + '\n';
+    },
+
+    sort: function(argv, stdin, files, cwdState){
+      var p = parseArgs(argv, []);
+      var text = p.positional.length ? sourceText(files, p.positional, stdin, cwdState.value) : (stdin === null ? '' : stdin);
+      var lines = splitLines(text).slice().sort(function(a, b){ return a < b ? -1 : a > b ? 1 : 0; });
+      if (p.flags.r) lines.reverse();
+      return lines.length ? lines.join('\n') + '\n' : '';
+    },
+
+    uniq: function(argv, stdin, files, cwdState){
+      var p = parseArgs(argv, []);
+      var text = p.positional.length ? sourceText(files, p.positional, stdin, cwdState.value) : (stdin === null ? '' : stdin);
+      var lines = splitLines(text);
+      var out = [];
+      for (var i = 0; i < lines.length; i++){
+        if (out.length && out[out.length - 1].line === lines[i]) out[out.length - 1].count++;
+        else out.push({ line: lines[i], count: 1 });
+      }
+      if (p.flags.c){
+        return out.length ? out.map(function(o){
+          var c = String(o.count);
+          while (c.length < 6) c = ' ' + c;
+          return c + ' ' + o.line;
+        }).join('\n') + '\n' : '';
+      }
+      return out.length ? out.map(function(o){ return o.line; }).join('\n') + '\n' : '';
+    },
+
+    cut: function(argv, stdin, files, cwdState){
+      var p = parseArgs(argv, ['d', 'f']);
+      var delim = p.values.d !== undefined ? p.values.d : '\t';
+      var fieldIdx = (parseInt(p.values.f, 10) || 1) - 1;
+      var text = sourceText(files, p.positional, stdin, cwdState.value);
+      var lines = splitLines(text);
+      return lines.length ? lines.map(function(l){
+        var parts = l.split(delim);
+        return parts[fieldIdx] !== undefined ? parts[fieldIdx] : '';
+      }).join('\n') + '\n' : '';
+    },
+
+    awk: function(argv, stdin, files, cwdState){
+      var p = parseArgs(argv, ['F']);
+      var fsSep = p.values.F !== undefined ? p.values.F : null;
+      var program = p.positional[0];
+      if (program === undefined) throw new Error('missing program');
+      var fileArgs = p.positional.slice(1);
+      var text = sourceText(files, fileArgs, stdin, cwdState.value);
+      var lines = splitLines(text);
+      var m = program.match(/\{\s*print\s+(.+?)\s*\}/);
+      if (!m) throw new Error('unsupported program');
+      var expr = m[1].trim();
+      return lines.length ? lines.map(function(l){
+        var fields = fsSep ? l.split(fsSep) : l.trim().split(/\s+/);
+        if (expr === '$NF') return fields[fields.length - 1] || '';
+        var fm = expr.match(/^\$(\d+)$/);
+        if (fm) return fields[parseInt(fm[1], 10) - 1] || '';
+        return expr;
+      }).join('\n') + '\n' : '';
+    },
+
+    sed: function(argv, stdin, files, cwdState){
+      var p = parseArgs(argv, []);
+      var expr = p.positional[0];
+      if (expr === undefined) throw new Error('missing expression');
+      var fileArgs = p.positional.slice(1);
+      var text = sourceText(files, fileArgs, stdin, cwdState.value);
+      var m = expr.match(/^s(.)(.*?)\1(.*?)\1(g?)$/);
+      if (!m) throw new Error('unsupported expression (use s/old/new/g)');
+      var pat = m[2], repl = m[3], g = m[4];
+      var re;
+      try { re = new RegExp(pat, g ? 'g' : ''); }
+      catch (e) { throw new Error('invalid pattern'); }
+      var lines = splitLines(text);
+      return lines.length ? lines.map(function(l){ return l.replace(re, repl); }).join('\n') + '\n' : '';
+    },
+
+    find: function(argv, stdin, files, cwdState){
+      var target = '.', namePattern = null, i = 0;
+      if (argv.length && argv[0][0] !== '-'){ target = argv[0]; i = 1; }
+      for (; i < argv.length; i++){
+        if (argv[i] === '-name'){ namePattern = argv[++i]; }
+        else if (argv[i] === '-type'){ i++; }
+      }
+      var rootPath = resolvePath(cwdState.value, target);
+      var prefix = rootPath === '' ? '' : rootPath + '/';
+      var paths = Object.keys(files).filter(function(p){
+        return rootPath === '' ? true : (p === rootPath || p.indexOf(prefix) === 0);
+      });
+      if (namePattern){
+        var reSrc = '^' + namePattern.split('*').map(escapeRe).join('.*') + '$';
+        var re = new RegExp(reSrc);
+        paths = paths.filter(function(p){ return re.test(p.split('/').pop()); });
+      }
+      var displayBase = target === '.' ? '.' : target.replace(/\/+$/, '');
+      return paths.length ? paths.map(function(p){
+        var relative = rootPath === '' ? p : p.slice(prefix.length);
+        return relative ? displayBase + '/' + relative : displayBase;
+      }).join('\n') + '\n' : '';
+    },
+
+    ls: function(argv, stdin, files, cwdState){
+      var p = parseArgs(argv, []);
+      var rawTarget = p.positional[0] || '.';
+      var long = p.flags.l;
+      var resolved = resolvePath(cwdState.value, rawTarget);
+      if (files[resolved]){
+        var f = files[resolved];
+        return long ? formatLsLine(f, rawTarget) + '\n' : rawTarget + '\n';
+      }
+      var prefix = resolved === '' ? '' : resolved + '/';
+      var names = [], seen = {};
+      Object.keys(files).forEach(function(path){
+        if (resolved !== '' && path.indexOf(prefix) !== 0) return;
+        var rel = resolved === '' ? path : path.slice(prefix.length);
+        var top = rel.split('/')[0];
+        if (!seen[top]){ seen[top] = true; names.push(top); }
+      });
+      if (!names.length && resolved !== '') throw new Error("cannot access '" + rawTarget + "': No such file or directory");
+      if (!long) return names.length ? names.join('  ') + '\n' : '';
+      return names.length ? names.map(function(name){
+        var full = resolved === '' ? name : prefix + name;
+        var f = files[full];
+        if (f) return formatLsLine(f, name);
+        return 'drwxrwxr-x 2 kali kali    40 Jul  9 22:00 ' + name;
+      }).join('\n') + '\n' : '';
+    },
+
+    chmod: function(argv, stdin, files, cwdState){
+      var p = parseArgs(argv, []);
+      var mode = p.positional[0], rawPath = p.positional[1];
+      var resolved = resolvePath(cwdState.value, rawPath);
+      var f = files[resolved];
+      if (!f) throw new Error("cannot access '" + rawPath + "': No such file or directory");
+      if (mode === '+x') f.exec = true;
+      else if (mode === '-x') f.exec = false;
+      return '';
+    },
+
+    stat: function(argv, stdin, files, cwdState){
+      var p = parseArgs(argv, []);
+      var rawPath = p.positional[0];
+      var resolved = resolvePath(cwdState.value, rawPath);
+      var f = files[resolved];
+      if (!f) throw new Error("cannot stat '" + rawPath + "': No such file or directory");
+      var modeStr = f.exec ? 'rwxrwxr-x' : 'rw-rw-r--';
+      var octal = f.exec ? '0775' : '0664';
+      return '  File: ' + rawPath + '\n  Size: ' + f.content.length + '\t\tBlocks: 8\n' +
+             'Access: (' + octal + '/-' + modeStr + ')  Uid: ( 1000/  kali)   Gid: ( 1000/  kali)\n';
+    }
+  };
+
+  window.__baseCommands = BASE_COMMANDS;
+})();
+</script>
+
+<script>
+(function(){
+  window.__labs = window.__labs || {};
+
+  function F(content){ return { content: content, exec: false }; }
+
+  var FILES = {
+    'logs/access.log': F(
+      '2026-07-09 08:23:45 192.168.1.100 GET /api/users 200 1234\n' +
+      '2026-07-09 08:24:12 192.168.1.101 POST /api/login 401 567\n' +
+      '2026-07-09 08:25:00 192.168.1.102 GET /index.html 200 5678\n' +
+      '2026-07-09 08:26:33 192.168.1.100 DELETE /api/users/5 403 200\n' +
+      '2026-07-09 08:27:15 192.168.1.103 GET /api/data 500 89\n'
+    ),
+    'logs/app.log': F(
+      '[2026-07-09 08:00:00] INFO Starting application\n' +
+      '[2026-07-09 08:00:05] INFO Database connected\n' +
+      '[2026-07-09 08:01:20] WARN Memory usage at 75%\n' +
+      '[2026-07-09 08:02:10] ERROR Connection timeout to cache-server\n' +
+      '[2026-07-09 08:03:00] INFO Cache reconnected\n' +
+      '[2026-07-09 08:04:15] ERROR Failed to process job #4521\n' +
+      '[2026-07-09 08:05:30] WARN High CPU usage detected\n' +
+      '[2026-07-09 08:06:45] ERROR Database query timeout\n' +
+      '[2026-07-09 08:07:20] INFO Backup completed successfully\n'
+    ),
+    'logs/security.log': F(
+      '2026-07-09 08:10:00 ALERT Failed login attempt from 10.0.0.5\n' +
+      '2026-07-09 08:15:30 ALERT Failed login attempt from 10.0.0.6\n' +
+      '2026-07-09 08:20:15 INFO User kali logged in\n' +
+      '2026-07-09 08:22:45 ALERT Multiple failed login from 10.0.0.7\n' +
+      '2026-07-09 08:25:00 INFO User admin logged in\n' +
+      '2026-07-09 08:30:20 ALERT Unauthorized API access attempt\n'
+    ),
+    'configs/database.conf': F('HOST=localhost\nPORT=5432\nUSER=postgres\nPASSWORD=secret123\nDATABASE=production\n'),
+    'configs/app.conf': F('ENV=production\nDEBUG=false\nLOG_LEVEL=info\nMAX_CONNECTIONS=100\nTIMEOUT=30\n'),
+    'configs/nginx.conf': F('server {\n  listen 80;\n  server_name example.com;\n  location / {\n    proxy_pass http://localhost:3000;\n  }\n}\n'),
+    'data/users.csv': F(
+      'id,name,email,created_date\n' +
+      '1,Alice Johnson,alice@example.com,2026-01-15\n' +
+      '2,Bob Smith,bob@example.com,2026-02-20\n' +
+      '3,Charlie Brown,charlie@example.com,2026-03-10\n' +
+      '4,Diana Prince,diana@example.com,2026-04-05\n' +
+      '5,Eve Wilson,eve@example.com,2026-05-12\n'
+    ),
+    'data/products.csv': F(
+      'id,name,price,stock\n' +
+      '101,Laptop,999.99,15\n' +
+      '102,Mouse,25.50,150\n' +
+      '103,Keyboard,75.00,80\n' +
+      '104,Monitor,299.99,20\n' +
+      '105,Headphones,149.99,45\n'
+    ),
+    'backups/backup.sh': F('#!/bin/bash\necho "Creating backup..."\ntar -czf backup.tar.gz /var/www/\necho "Backup complete"\n'),
+    'users/kali/profile.txt': F('name=kali\nrole=student\n'),
+    'users/kali/settings.conf': F('THEME=dark\n'),
+    'users/admin/dashboard.html': F('<h1>Admin Dashboard</h1>\n'),
+    'users/admin/config.xml': F('<config/>\n'),
+    'users/guest/readme.txt': F('Guest access only.\n'),
+    'websites/index.html': F('<!DOCTYPE html>\n<html><head><title>Home</title></head><body><h1>Welcome</h1></body></html>\n'),
+    'websites/about.html': F('<!DOCTYPE html>\n<html><head><title>About</title></head><body><h1>About Us</h1></body></html>\n'),
+    'backups/deploy.log': F('2026-07-08 22:10:00 Deployed release v1.4.2\n2026-07-08 22:10:05 Health check passed\n'),
+    'backups/rotate.log': F('2026-07-08 03:00:00 Rotated logs older than 7 days\n')
+  };
+
+  var CHALLENGES = [
+    { type: 'output', title: 'Count the errors', prompt: 'The app log at <code>logs/app.log</code> mixes INFO, WARN and ERROR lines. Count how many lines contain <code>ERROR</code>.', canonical: "grep 'ERROR' logs/app.log | wc -l" },
+    { type: 'output', title: 'Peek at the top', prompt: 'Show just the first 3 lines of <code>logs/access.log</code>.', canonical: 'head -n 3 logs/access.log' },
+    { type: 'output', title: 'Security sweep', prompt: 'Count how many <code>ALERT</code> entries are in <code>logs/security.log</code>.', canonical: "grep -c 'ALERT' logs/security.log" },
+    { type: 'output', title: 'Slice a CSV', prompt: 'Print the 2nd comma-separated field (name) from every line of <code>data/users.csv</code>.', canonical: "cut -d',' -f2 data/users.csv" },
+    { type: 'output', title: 'Hunt config files', prompt: 'Find every <code>*.conf</code> file anywhere under the lab root.', canonical: "find . -name '*.conf'" },
+    { type: 'output', title: 'Search and replace', prompt: 'Without editing the file, replace <code>ERROR</code> with <code>CRITICAL</code> in <code>logs/app.log</code> and show the last 2 resulting lines.', canonical: "sed 's/ERROR/CRITICAL/g' logs/app.log | tail -n 2" },
+    { type: 'output', title: 'Map a directory', prompt: 'List every file nested under <code>users/</code>, recursively.', canonical: 'find users -type f' },
+    { type: 'output', title: 'Fix the permissions', prompt: '<code>backups/backup.sh</code> is not executable yet. Make it executable, then confirm with a long listing.', canonical: 'ls -l backups/backup.sh', setup: 'chmod +x backups/backup.sh' },
+    { type: 'output', title: 'Count the logs', prompt: 'How many <code>.log</code> files exist anywhere in the lab?', canonical: "find . -name '*.log' | wc -l" },
+    { type: 'output', title: 'Status code breakdown', prompt: 'From <code>logs/access.log</code>, print the HTTP status code (6th field) for every request, then show a sorted count of each unique value.', canonical: "awk '{print $6}' logs/access.log | sort | uniq -c" }
+  ];
+
+  window.__labs.linux = {
+    id: 'linux',
+    badge: 'LX',
+    name: 'Linux CLI',
+    tagline: 'grep, awk, sed, find, permissions, pipes.',
+    windowTitle: 'kali@interview-prep: ~/practice-lab',
+    promptBase: 'practice',
+    files: FILES,
+    makeState: function(){ return {}; },
+    makeCommands: function(){ return {}; },
+    challenges: CHALLENGES,
+    introLine: 'Lab ready. Try `ls -la`, `cd logs`, or `cat app.log` to explore.',
+    cheat: [
+      ['cd', 'dir / .. / (blank = root)'], ['cat', 'file...'], ['head', '-n N file'], ['tail', '-n N file'],
+      ['grep', "-i -c -v 'pat' file"], ['wc', '-l -w -c file'], ['sort', '-r'], ['uniq', '-c'],
+      ['cut', "-d',' -f2 file"], ['awk', "-F',' '{print $2}'"], ['sed', "'s/old/new/g' file"],
+      ['find', "path -name '*.ext' -type f"], ['ls', '-l path'], ['chmod', '+x path'], ['stat', 'path'],
+      ['pwd / hostname / echo / clear', ''], ['pipes', 'cmd1 | cmd2 | cmd3'], ['Tab', 'autocompletes paths'], ['&uarr; / &darr;', 'recall history']
+    ]
+  };
+})();
+</script>
+
+<script>
+(function(){
+  var E = window.__engine;
+  var scanFlags = E.scanFlags, formatTable = E.formatTable, splitLines = E.splitLines;
+
+  var HEALTHY_LOGS =
+    '> devops-poc-app@1.0.0 start\n' +
+    '> node server.js\n' +
+    '\n' +
+    'Server listening on port 3000\n' +
+    'Connected to billing-api\n' +
+    'GET /healthz 200 3ms\n' +
+    'GET /healthz 200 2ms\n' +
+    'GET /api/users 200 14ms\n';
+
+  function makeDockerCommands(state){
+    function findImage(ref){
+      if (!ref) return null;
+      var parts = ref.split(':'), repo = parts[0], tag = parts[1] || 'latest';
+      var hits = state.images.filter(function(im){ return im.repo === repo && im.tag === tag; });
+      return hits[0] || null;
+    }
+    function findContainer(nameOrId){
+      if (!nameOrId) return null;
+      var hits = state.containers.filter(function(c){ return c.name === nameOrId || c.id === nameOrId || c.id.indexOf(nameOrId) === 0; });
+      return hits[0] || null;
+    }
+    return {
+      docker: function(argv){
+        var sub = argv[0], rest = argv.slice(1);
+
+        if (sub === 'build'){
+          var fb = scanFlags(rest, ['t']);
+          var tag = fb.values.t;
+          if (!tag) throw new Error('"docker build" requires -t <name:tag>');
+          var parts = tag.split(':'), repo = parts[0], tg = parts[1] || 'latest';
+          if (!findImage(tag)) state.images.push({ repo: repo, tag: tg, id: 'a1b2c3d4e5f6', created: 'Less than a minute ago', size: '142MB' });
+          return '[+] Building 4.2s (10/10) FINISHED\n' +
+            ' => [internal] load build definition from Dockerfile\n' +
+            ' => [internal] load metadata for node:20-alpine\n' +
+            ' => [1/5] FROM node:20-alpine\n' +
+            ' => [2/5] WORKDIR /app\n' +
+            ' => [3/5] COPY package*.json ./\n' +
+            ' => [4/5] RUN npm install --production\n' +
+            ' => [5/5] COPY . .\n' +
+            ' => exporting to image\n' +
+            ' => => naming to docker.io/library/' + tag + '\n';
+        }
+
+        if (sub === 'images'){
+          var rows = state.images.map(function(im){ return [im.repo, im.tag, im.id, im.created, im.size]; });
+          return formatTable(['REPOSITORY', 'TAG', 'IMAGE ID', 'CREATED', 'SIZE'], rows);
+        }
+
+        if (sub === 'run'){
+          var fr = scanFlags(rest, ['name', 'p']);
+          var image = fr.positional[fr.positional.length - 1];
+          var img = findImage(image);
+          if (!img) throw new Error("Unable to find image '" + (image || '') + "' locally\ndocker: Error response from daemon: pull access denied, repository does not exist or may require 'docker login'");
+          var name = fr.values.name || ('container-' + state.containers.length);
+          var existing = findContainer(name);
+          if (existing && existing.status === 'running') throw new Error('Error response from daemon: Conflict. The container name "/' + name + '" is already in use by container "' + existing.id + '". You have to remove (or rename) that container to reuse that name.');
+          var id = '9f8e7d6c5b4a';
+          if (existing){ existing.status = 'running'; existing.id = id; existing.image = image; }
+          else {
+            state.containers.push({
+              id: id, name: name, image: image, command: 'node server.js', status: 'running',
+              ports: fr.values.p ? fr.values.p + '/tcp' : '', createdAgo: 'a few seconds ago',
+              exitInfo: '', logs: HEALTHY_LOGS
+            });
+          }
+          return id + '\n';
+        }
+
+        if (sub === 'ps'){
+          var all = rest.indexOf('-a') !== -1 || rest.indexOf('--all') !== -1;
+          var list = state.containers.filter(function(c){ return all || c.status === 'running'; });
+          var rows2 = list.map(function(c){
+            return [c.id, c.image, '"' + c.command + '"', c.createdAgo, c.status === 'running' ? ('Up ' + c.createdAgo) : c.exitInfo, c.ports || '', c.name];
+          });
+          return formatTable(['CONTAINER ID', 'IMAGE', 'COMMAND', 'CREATED', 'STATUS', 'PORTS', 'NAMES'], rows2);
+        }
+
+        if (sub === 'logs'){
+          var fl = scanFlags(rest, ['tail']);
+          var c = findContainer(fl.positional[0]);
+          if (!c) throw new Error('No such container: ' + (fl.positional[0] || ''));
+          var lines = splitLines(c.logs);
+          var n = fl.values.tail ? parseInt(fl.values.tail, 10) : lines.length;
+          return lines.slice(-n).join('\n') + '\n';
+        }
+
+        if (sub === 'inspect'){
+          var c2 = findContainer(rest[0]);
+          if (!c2) throw new Error('No such object: ' + (rest[0] || ''));
+          return '[\n    {\n        "Id": "' + c2.id + '",\n        "Name": "/' + c2.name + '",\n' +
+            '        "State": { "Status": "' + c2.status + '", "Running": ' + (c2.status === 'running') + ' },\n' +
+            '        "Config": { "Image": "' + c2.image + '" },\n' +
+            '        "NetworkSettings": { "Ports": { "3000/tcp": [{ "HostPort": "3000" }] } }\n    }\n]\n';
+        }
+
+        if (sub === 'exec'){
+          var fe = scanFlags(rest, []);
+          var c3 = findContainer(fe.positional[0]);
+          if (!c3) throw new Error('No such container: ' + (fe.positional[0] || ''));
+          if (c3.status !== 'running') throw new Error('Error response from daemon: Container ' + c3.id + ' is not running');
+          return '(simulated shell) — in a real terminal, -it drops you into an interactive session inside the container.\n';
+        }
+
+        if (sub === 'stop'){
+          var c4 = findContainer(rest[0]);
+          if (!c4) throw new Error('No such container: ' + (rest[0] || ''));
+          c4.status = 'exited'; c4.exitInfo = 'Exited (0) a few seconds ago';
+          return c4.name + '\n';
+        }
+
+        if (sub === 'rm'){
+          var c5 = findContainer(rest[0]);
+          if (!c5) throw new Error('No such container: ' + (rest[0] || ''));
+          if (c5.status === 'running') throw new Error('Error response from daemon: You cannot remove a running container ' + c5.id + '. Stop the container before attempting removal or force remove');
+          state.containers = state.containers.filter(function(x){ return x !== c5; });
+          return c5.name + '\n';
+        }
+
+        throw new Error("'docker " + sub + "' is not supported in this sandbox");
+      }
+    };
+  }
+  window.__makeDockerCommands = makeDockerCommands;
+  window.__dockerHealthyLogs = HEALTHY_LOGS;
+
+  var CHALLENGES = [
+    { type: 'pattern', title: 'Build the image', prompt: 'Build the app image and tag it <code>devops-poc-app:local</code>.', patterns: [/^docker\s+build\b/i, /-t\s*devops-poc-app:local/i], example: 'docker build -t devops-poc-app:local .' },
+    { type: 'pattern', title: 'Run it', prompt: 'Run the image detached, named <code>devops-poc-app</code>, publishing port 3000.', patterns: [/^docker\s+run\b/i, /-d\b/i, /--name[= ]?devops-poc-app/i, /-p\s*3000:3000/i, /devops-poc-app:local/i], example: 'docker run -d --name devops-poc-app -p 3000:3000 devops-poc-app:local' },
+    { type: 'pattern', title: 'List running containers', prompt: 'List the currently running containers.', patterns: [/^docker\s+ps\b/i], example: 'docker ps' },
+    { type: 'pattern', title: 'List images', prompt: 'List the local images.', patterns: [/^docker\s+images\b/i], example: 'docker images' },
+    { type: 'pattern', title: 'Check the logs', prompt: 'View the logs for <code>devops-poc-app</code>.', patterns: [/^docker\s+logs\b/i, /devops-poc-app/i], example: 'docker logs --tail=20 devops-poc-app' },
+    { type: 'pattern', title: 'Inspect the container', prompt: 'Get the full inspect output for <code>devops-poc-app</code>.', patterns: [/^docker\s+inspect\b/i, /devops-poc-app/i], example: 'docker inspect devops-poc-app' },
+    { type: 'pattern', title: 'Open a shell inside it', prompt: 'Open an interactive shell inside the running container.', patterns: [/^docker\s+exec\b/i, /-it\b/i, /devops-poc-app/i, /\b(sh|bash)\b/i], example: 'docker exec -it devops-poc-app sh' },
+    { type: 'pattern', title: 'Stop it', prompt: 'Stop the <code>devops-poc-app</code> container.', patterns: [/^docker\s+stop\b/i, /devops-poc-app/i], example: 'docker stop devops-poc-app' },
+    { type: 'pattern', title: 'Remove it', prompt: 'Remove the (now stopped) <code>devops-poc-app</code> container.', patterns: [/^docker\s+rm\b/i, /devops-poc-app/i], example: 'docker rm devops-poc-app' }
+  ];
+
+  window.__labs.docker = {
+    id: 'docker',
+    badge: 'DK',
+    name: 'Docker',
+    tagline: 'build, run, ps, logs, exec, inspect, cleanup.',
+    windowTitle: 'kali@interview-prep: ~/devops-poc',
+    promptBase: 'docker',
+    files: {},
+    makeState: function(){ return { images: [], containers: [] }; },
+    makeCommands: makeDockerCommands,
+    challenges: CHALLENGES,
+    introLine: 'No image built yet. Start with `docker build -t devops-poc-app:local .`',
+    cheat: [
+      ['docker build', '-t name:tag .'], ['docker run', '-d --name X -p A:B image'], ['docker ps', '-a for stopped too'],
+      ['docker images', ''], ['docker logs', '--tail=N name'], ['docker inspect', 'name'],
+      ['docker exec', '-it name sh'], ['docker stop / rm', 'name'], ['grep / wc / etc.', 'pipe any docker output through them']
+    ]
+  };
+})();
+</script>
+
+<script>
+(function(){
+  var E = window.__engine;
+  var scanFlags = E.scanFlags, formatTable = E.formatTable;
+
+  var HEALTHY_LOGS =
+    '> devops-poc-app@1.0.0 start\n> node server.js\n\nServer listening on port 3000\nConnected to billing-api\nGET /healthz 200 3ms\nGET /healthz 200 2ms\n';
+
+  var NORMAL_EVENTS =
+    '  Type    Reason     Age   From               Message\n' +
+    '  ----    ------     ----  ----               -------\n' +
+    '  Normal  Scheduled  5m    default-scheduler  Successfully assigned pod to node-1\n' +
+    '  Normal  Pulled     5m    kubelet            Container image already present on machine\n' +
+    '  Normal  Created    5m    kubelet            Created container devops-poc-app\n' +
+    '  Normal  Started    5m    kubelet            Started container devops-poc-app\n';
+
+  function findPod(state, name){
+    if (!name) return null;
+    var hits = state.pods.filter(function(p){ return p.name === name; });
+    if (hits[0]) return hits[0];
+    hits = state.pods.filter(function(p){ return p.name.indexOf(name) === 0; });
+    return hits[0] || null;
+  }
+
+  function describePod(p){
+    return 'Name:         ' + p.name + '\n' +
+      'Namespace:    devops-poc\n' +
+      'Status:       ' + p.status + '\n' +
+      'IP:           10.244.0.5\n' +
+      'Containers:\n' +
+      '  devops-poc-app:\n' +
+      '    Image:          devops-poc-app:local\n' +
+      '    Port:           3000/TCP\n' +
+      '    State:          ' + (p.status === 'Running' ? 'Running' : p.status) + '\n' +
+      '    Ready:          ' + (p.ready === '1/1' ? 'True' : 'False') + '\n' +
+      '    Restart Count:  ' + p.restarts + '\n' +
+      'Events:\n' + p.events;
+  }
+
+  function makeKubectlCommands(state){
+    return {
+      kubectl: function(argv){
+        var sub = argv[0], rest = argv.slice(1);
+
+        if (sub === 'apply'){
+          var fa = scanFlags(rest, ['f']);
+          if (!fa.values.f) throw new Error('error: must specify -f');
+          if (!state.deployment){
+            state.deployment = { name: 'devops-poc-app', replicas: 2, available: 2, upToDate: 2 };
+            state.service = { name: 'devops-poc-service', type: 'ClusterIP', clusterIP: '10.96.45.112', ports: '80:31234/TCP' };
+            state.pods = [
+              { name: 'devops-poc-app-7d9f8c6b5-abcde', ready: '1/1', status: 'Running', restarts: '0', age: '5m', logs: HEALTHY_LOGS, events: NORMAL_EVENTS },
+              { name: 'devops-poc-app-7d9f8c6b5-fghij', ready: '1/1', status: 'Running', restarts: '0', age: '5m', logs: HEALTHY_LOGS, events: NORMAL_EVENTS }
+            ];
+            return 'deployment.apps/devops-poc-app created\nservice/devops-poc-service created\n';
+          }
+          return 'deployment.apps/devops-poc-app configured\nservice/devops-poc-service unchanged\n';
+        }
+
+        if (sub === 'delete'){
+          var fd = scanFlags(rest, ['f']);
+          if (!fd.values.f) throw new Error('error: must specify -f');
+          state.deployment = null; state.service = null; state.pods = [];
+          return 'deployment.apps "devops-poc-app" deleted\nservice "devops-poc-service" deleted\n';
+        }
+
+        if (sub === 'get'){
+          var resource = rest[0];
+          var fg = scanFlags(rest.slice(1), ['n', 'namespace']);
+
+          if (resource === 'namespaces' || resource === 'ns'){
+            return formatTable(['NAME', 'STATUS', 'AGE'], [['default', 'Active', '30d'], ['kube-system', 'Active', '30d'], ['devops-poc', 'Active', '5m']]);
+          }
+          if (resource === 'nodes' || resource === 'no'){
+            var nodes = state.nodes || [];
+            return formatTable(['NAME', 'STATUS', 'ROLES', 'AGE', 'VERSION'], nodes.map(function(n){ return [n.name, n.status, n.roles, n.age, n.version]; }));
+          }
+          if (resource === 'pods' || resource === 'po'){
+            if (!state.pods.length) return 'No resources found in devops-poc namespace.\n';
+            return formatTable(['NAME', 'READY', 'STATUS', 'RESTARTS', 'AGE'], state.pods.map(function(p){ return [p.name, p.ready, p.status, p.restarts, p.age]; }));
+          }
+          if (resource === 'svc' || resource === 'services'){
+            if (!state.service) return 'No resources found in devops-poc namespace.\n';
+            var s = state.service;
+            return formatTable(['NAME', 'TYPE', 'CLUSTER-IP', 'EXTERNAL-IP', 'PORT(S)', 'AGE'], [[s.name, s.type, s.clusterIP, '<none>', s.ports, '5m']]);
+          }
+          if (resource === 'all'){
+            var out = '';
+            if (state.pods.length){
+              out += formatTable(['NAME', 'READY', 'STATUS', 'RESTARTS', 'AGE'], state.pods.map(function(p){ return ['pod/' + p.name, p.ready, p.status, p.restarts, p.age]; }));
+            }
+            if (state.service){
+              out += '\n' + formatTable(['NAME', 'TYPE', 'CLUSTER-IP', 'EXTERNAL-IP', 'PORT(S)', 'AGE'], [['service/' + state.service.name, state.service.type, state.service.clusterIP, '<none>', state.service.ports, '5m']]);
+            }
+            if (state.deployment){
+              var d = state.deployment;
+              out += '\n' + formatTable(['NAME', 'READY', 'UP-TO-DATE', 'AVAILABLE', 'AGE'], [['deployment.apps/' + d.name, d.available + '/' + d.replicas, d.upToDate, d.available, '5m']]);
+            }
+            return out || 'No resources found in devops-poc namespace.\n';
+          }
+          throw new Error('the server doesn\'t have a resource type "' + resource + '"');
+        }
+
+        if (sub === 'describe'){
+          if (rest[0] !== 'pod') throw new Error('unsupported: describe ' + rest[0]);
+          var p = findPod(state, rest[1]);
+          if (!p) throw new Error('pods "' + (rest[1] || '') + '" not found');
+          return describePod(p);
+        }
+
+        if (sub === 'logs'){
+          var fl = scanFlags(rest, ['n', 'namespace', 'l', 'tail']);
+          var pod = fl.values.l ? state.pods[0] : findPod(state, fl.positional[0]);
+          if (!pod) throw new Error('pods "' + (fl.positional[0] || '') + '" not found');
+          return pod.logs;
+        }
+
+        if (sub === 'port-forward'){
+          state.portForwardActive = true;
+          return 'Forwarding from 127.0.0.1:3000 -> 80\nForwarding from [::1]:3000 -> 80\n(this would block in a real terminal — Ctrl+C to stop; here it just confirms the command)\n';
+        }
+
+        if (sub === 'rollout'){
+          if (rest[0] === 'status') return 'deployment "devops-poc-app" successfully rolled out\n';
+          if (rest[0] === 'history'){
+            var rows = (state.rolloutHistory || []).map(function(r){ return [String(r.revision), r.changeCause]; });
+            return formatTable(['REVISION', 'CHANGE-CAUSE'], rows);
+          }
+          throw new Error('unsupported rollout subcommand');
+        }
+
+        if (sub === 'scale'){
+          var fs2 = scanFlags(rest, ['replicas']);
+          var n = parseInt(fs2.values.replicas, 10);
+          if (!n) throw new Error('--replicas is required');
+          if (!state.deployment) throw new Error('deployments.apps "devops-poc-app" not found');
+          while (state.pods.length < n){
+            var idx = state.pods.length;
+            state.pods.push({ name: 'devops-poc-app-7d9f8c6b5-p' + idx, ready: '1/1', status: 'Running', restarts: '0', age: '10s', logs: HEALTHY_LOGS, events: NORMAL_EVENTS });
+          }
+          while (state.pods.length > n) state.pods.pop();
+          state.deployment.replicas = n; state.deployment.available = n; state.deployment.upToDate = n;
+          return 'deployment.apps/devops-poc-app scaled\n';
+        }
+
+        throw new Error("'kubectl " + sub + "' is not supported in this sandbox");
+      }
+    };
+  }
+  window.__makeKubectlCommands = makeKubectlCommands;
+
+  var CHALLENGES = [
+    { type: 'pattern', title: 'Apply the manifests', prompt: 'Deploy the app by applying everything under <code>k8s/</code>.', patterns: [/^kubectl\s+apply\b/i, /-f\s*k8s\//i], example: 'kubectl apply -f k8s/' },
+    { type: 'pattern', title: 'See everything at once', prompt: 'List all resources in the <code>devops-poc</code> namespace.', patterns: [/^kubectl\s+get\s+all\b/i, /(-n|--namespace)[= ]?devops-poc/i], example: 'kubectl get all -n devops-poc' },
+    { type: 'pattern', title: 'List the pods', prompt: 'List pods in <code>devops-poc</code>.', patterns: [/^kubectl\s+get\s+pods?\b/i, /(-n|--namespace)[= ]?devops-poc/i], example: 'kubectl get pods -n devops-poc' },
+    { type: 'pattern', title: 'Describe a pod', prompt: 'Describe one of the running pods (copy its name from <code>get pods</code>).', patterns: [/^kubectl\s+describe\s+pod\b/i, /(-n|--namespace)[= ]?devops-poc/i], example: 'kubectl describe pod devops-poc-app-7d9f8c6b5-abcde -n devops-poc' },
+    { type: 'pattern', title: 'Read pod logs', prompt: 'View the logs for one of the pods.', patterns: [/^kubectl\s+logs\b/i, /(-n|--namespace)[= ]?devops-poc/i], example: 'kubectl logs devops-poc-app-7d9f8c6b5-abcde -n devops-poc' },
+    { type: 'pattern', title: 'Check the service', prompt: 'List services in the namespace.', patterns: [/^kubectl\s+get\s+(svc|services)\b/i, /(-n|--namespace)[= ]?devops-poc/i], example: 'kubectl get svc -n devops-poc' },
+    { type: 'pattern', title: 'Port-forward it', prompt: 'Forward local port 3000 to the service\'s port 80.', patterns: [/^kubectl\s+port-forward\b/i, /devops-poc-service/i, /3000:80/i], example: 'kubectl port-forward -n devops-poc service/devops-poc-service 3000:80' },
+    { type: 'pattern', title: 'Check rollout status', prompt: 'Confirm the deployment finished rolling out.', patterns: [/^kubectl\s+rollout\s+status\b/i, /devops-poc-app/i], example: 'kubectl rollout status deployment/devops-poc-app -n devops-poc' },
+    { type: 'pattern', title: 'Scale to 3 replicas', prompt: 'Scale the deployment to 3 replicas.', patterns: [/^kubectl\s+scale\b/i, /devops-poc-app/i, /--replicas[= ]?3\b/i], example: 'kubectl scale deployment devops-poc-app --replicas=3 -n devops-poc' },
+    { type: 'pattern', title: 'Tear it down', prompt: 'Delete everything you applied.', patterns: [/^kubectl\s+delete\b/i, /-f\s*k8s\//i], example: 'kubectl delete -f k8s/' }
+  ];
+
+  window.__labs.k8s = {
+    id: 'k8s',
+    badge: 'K8',
+    name: 'Kubernetes',
+    tagline: 'get, describe, logs, rollout, scale, port-forward.',
+    windowTitle: 'kali@interview-prep: ~/devops-poc',
+    promptBase: 'k8s',
+    files: {},
+    makeState: function(){ return { pods: [], deployment: null, service: null, rolloutHistory: [{ revision: 1, changeCause: 'kubectl apply --filename=k8s/deployment.yaml' }], portForwardActive: false, nodes: [] }; },
+    makeCommands: makeKubectlCommands,
+    challenges: CHALLENGES,
+    introLine: 'Nothing deployed yet. Start with `kubectl apply -f k8s/`',
+    cheat: [
+      ['kubectl apply/delete', '-f k8s/'], ['kubectl get pods/svc/all', '-n devops-poc'],
+      ['kubectl describe pod', 'name -n devops-poc'], ['kubectl logs', 'name -n devops-poc'],
+      ['kubectl port-forward', '-n ns service/svc 3000:80'], ['kubectl rollout status/history', 'deployment/name'],
+      ['kubectl scale', 'deployment name --replicas=N']
+    ]
+  };
+})();
+</script>
+
+<script>
+(function(){
+  var E = window.__engine;
+  var scanFlags = E.scanFlags;
+  var makeKubectlCommands = window.__makeKubectlCommands;
+
+  function makeAzCommands(state){
+    function requireLogin(){ if (!state.loggedIn) throw new Error('Please run \'az login\' to setup account.'); }
+    function findGroup(name){ return state.groups.filter(function(g){ return g.name === name; })[0] || null; }
+    function findAcr(name){ return state.acrs.filter(function(a){ return a.name === name; })[0] || null; }
+    function findAks(rg, name){ return state.aksClusters.filter(function(c){ return c.resourceGroup === rg && c.name === name; })[0] || null; }
+
+    return {
+      az: function(argv){
+        var group = argv[0], sub = argv[1], rest = argv.slice(2);
+
+        if (group === 'login'){
+          state.loggedIn = true;
+          return '[\n  {\n    "id": "8f3b1a2c-...-9d21",\n    "name": "Pay-As-You-Go",\n    "isDefault": true,\n    "user": { "name": "you@example.com", "type": "user" }\n  }\n]\n';
+        }
+
+        if (group === 'account' && sub === 'show'){
+          requireLogin();
+          return '{\n  "id": "8f3b1a2c-...-9d21",\n  "name": "Pay-As-You-Go",\n  "isDefault": true,\n  "state": "Enabled"\n}\n';
+        }
+
+        if (group === 'group' && sub === 'create'){
+          requireLogin();
+          var fg = scanFlags(rest, ['name', 'location']);
+          if (!fg.values.name) throw new Error('--name is required');
+          state.groups.push({ name: fg.values.name, location: fg.values.location || 'eastus' });
+          return '{\n  "id": "/subscriptions/.../resourceGroups/' + fg.values.name + '",\n  "location": "' + (fg.values.location || 'eastus') + '",\n  "name": "' + fg.values.name + '",\n  "properties": { "provisioningState": "Succeeded" }\n}\n';
+        }
+
+        if (group === 'group' && sub === 'delete'){
+          requireLogin();
+          var fgd = scanFlags(rest, ['name']);
+          if (!findGroup(fgd.values.name)) throw new Error('ResourceGroupNotFound: Resource group \'' + fgd.values.name + '\' could not be found.');
+          state.groups = state.groups.filter(function(g){ return g.name !== fgd.values.name; });
+          return '';
+        }
+
+        if (group === 'acr' && sub === 'create'){
+          requireLogin();
+          var fa = scanFlags(rest, ['resource-group', 'name', 'sku']);
+          if (!findGroup(fa.values['resource-group'])) throw new Error('ResourceGroupNotFound: Resource group \'' + fa.values['resource-group'] + '\' could not be found.');
+          if (!fa.values.name) throw new Error('--name is required');
+          state.acrs.push({ name: fa.values.name, resourceGroup: fa.values['resource-group'], sku: fa.values.sku || 'Basic', loginServer: fa.values.name + '.azurecr.io' });
+          return '{\n  "name": "' + fa.values.name + '",\n  "loginServer": "' + fa.values.name + '.azurecr.io",\n  "sku": { "name": "' + (fa.values.sku || 'Basic') + '" },\n  "provisioningState": "Succeeded"\n}\n';
+        }
+
+        if (group === 'acr' && sub === 'login'){
+          var fal = scanFlags(rest, ['name']);
+          if (!findAcr(fal.values.name)) throw new Error('The resource with name \'' + fal.values.name + '\' was not found.');
+          return 'Login Succeeded\n';
+        }
+
+        if (group === 'aks' && sub === 'create'){
+          requireLogin();
+          var fk = scanFlags(rest, ['resource-group', 'name', 'node-count', 'attach-acr']);
+          if (!findGroup(fk.values['resource-group'])) throw new Error('ResourceGroupNotFound: Resource group \'' + fk.values['resource-group'] + '\' could not be found.');
+          if (!fk.values.name) throw new Error('--name is required');
+          state.aksClusters.push({ name: fk.values.name, resourceGroup: fk.values['resource-group'], nodeCount: fk.values['node-count'] || '1' });
+          return '(this normally takes several minutes)\n{\n  "name": "' + fk.values.name + '",\n  "resourceGroup": "' + fk.values['resource-group'] + '",\n  "provisioningState": "Succeeded",\n  "kubernetesVersion": "1.28.5"\n}\n';
+        }
+
+        if (group === 'aks' && sub === 'get-credentials'){
+          var fgc = scanFlags(rest, ['resource-group', 'name']);
+          var cluster = findAks(fgc.values['resource-group'], fgc.values.name);
+          if (!cluster) throw new Error('ResourceNotFound: the AKS cluster \'' + fgc.values.name + '\' was not found in resource group \'' + fgc.values['resource-group'] + '\'.');
+          state.nodes = [
+            { name: 'aks-nodepool1-12345678-vmss000000', status: 'Ready', roles: 'agent', age: '2m', version: 'v1.28.5' }
+          ];
+          return 'Merged "' + cluster.name + '" as current context in ~/.kube/config\n';
+        }
+
+        throw new Error("'az " + [group, sub].filter(Boolean).join(' ') + "' is not supported in this sandbox");
+      },
+      docker: function(argv){
+        var sub = argv[0], rest = argv.slice(1);
+        if (sub === 'build'){
+          var fb = scanFlags(rest, ['t']);
+          if (!fb.values.t) throw new Error('"docker build" requires -t <name:tag>');
+          return '[+] Building 5.1s (10/10) FINISHED\n => => naming to docker.io/library/' + fb.values.t + '\n';
+        }
+        if (sub === 'push'){
+          var ref = rest[0];
+          if (!ref) throw new Error('"docker push" requires an image reference');
+          var m = ref.match(/^([a-z0-9]+)\.azurecr\.io\//i);
+          if (!m || !findAcr(m[1])) throw new Error('unauthorized: authentication required — run "az acr login" first');
+          return 'The push refers to repository [' + ref.split(':')[0] + ']\n' +
+            '5f70bf18a086: Pushed\nlatest: digest: sha256:9c27e219c86d... size: 1780\n';
+        }
+        throw new Error("'docker " + sub + "' is not supported in this sandbox");
+      }
+    };
+  }
+
+  function makeAzureLabCommands(state){
+    var az = makeAzCommands(state);
+    var kube = makeKubectlCommands(state);
+    return Object.assign({}, az, kube);
+  }
+
+  var CHALLENGES = [
+    { type: 'pattern', title: 'Log in', prompt: 'Authenticate the Azure CLI.', patterns: [/^az\s+login\b/i], example: 'az login' },
+    { type: 'pattern', title: 'Confirm the subscription', prompt: 'Show the active account/subscription.', patterns: [/^az\s+account\s+show\b/i], example: 'az account show' },
+    { type: 'pattern', title: 'Create a resource group', prompt: 'Create resource group <code>rg-devops-poc</code>.', patterns: [/^az\s+group\s+create\b/i, /--name[= ]?rg-devops-poc/i, /--location/i], example: 'az group create --name rg-devops-poc --location eastus' },
+    { type: 'pattern', title: 'Create a container registry', prompt: 'Create an ACR inside <code>rg-devops-poc</code>.', patterns: [/^az\s+acr\s+create\b/i, /--resource-group[= ]?rg-devops-poc/i, /--sku/i], example: 'az acr create --resource-group rg-devops-poc --name mydevopspocacr --sku Basic' },
+    { type: 'pattern', title: 'Log in to the registry', prompt: 'Authenticate Docker against the ACR you just made.', patterns: [/^az\s+acr\s+login\b/i, /--name/i], example: 'az acr login --name mydevopspocacr' },
+    { type: 'pattern', title: 'Push the image', prompt: 'Push the app image to <code>&lt;acr&gt;.azurecr.io/devops-poc-app</code>.', patterns: [/^docker\s+push\b/i, /\.azurecr\.io\/devops-poc-app/i], example: 'docker push mydevopspocacr.azurecr.io/devops-poc-app:v1' },
+    { type: 'pattern', title: 'Create the AKS cluster', prompt: 'Create cluster <code>aks-devops-poc</code> in <code>rg-devops-poc</code>.', patterns: [/^az\s+aks\s+create\b/i, /--resource-group[= ]?rg-devops-poc/i, /--name[= ]?aks-devops-poc/i], example: 'az aks create --resource-group rg-devops-poc --name aks-devops-poc --node-count 1 --generate-ssh-keys' },
+    { type: 'pattern', title: 'Fetch the kubeconfig', prompt: 'Pull cluster credentials into kubectl.', patterns: [/^az\s+aks\s+get-credentials\b/i, /--resource-group[= ]?rg-devops-poc/i, /--name[= ]?aks-devops-poc/i], example: 'az aks get-credentials --resource-group rg-devops-poc --name aks-devops-poc' },
+    { type: 'pattern', title: 'Verify cluster access', prompt: 'Confirm kubectl can see the cluster\'s nodes.', patterns: [/^kubectl\s+get\s+nodes\b/i], example: 'kubectl get nodes' },
+    { type: 'pattern', title: 'Clean up', prompt: 'Delete the resource group (and everything in it).', patterns: [/^az\s+group\s+delete\b/i, /--name[= ]?rg-devops-poc/i], example: 'az group delete --name rg-devops-poc --yes' }
+  ];
+
+  window.__labs.azure = {
+    id: 'azure',
+    badge: 'AZ',
+    name: 'Azure / AKS',
+    tagline: 'login, ACR, AKS provisioning, kubeconfig, cleanup.',
+    windowTitle: 'kali@interview-prep: ~/devops-poc',
+    promptBase: 'azure',
+    files: {},
+    makeState: function(){ return { loggedIn: false, groups: [], acrs: [], aksClusters: [], nodes: [] }; },
+    makeCommands: makeAzureLabCommands,
+    challenges: CHALLENGES,
+    introLine: 'Not logged in yet. Start with `az login`',
+    cheat: [
+      ['az login', ''], ['az account show', ''], ['az group create', '--name rg-devops-poc --location eastus'],
+      ['az acr create', '--resource-group rg-devops-poc --name X --sku Basic'], ['az acr login', '--name X'],
+      ['docker push', 'X.azurecr.io/devops-poc-app:v1'], ['az aks create', '--resource-group rg-devops-poc --name aks-devops-poc'],
+      ['az aks get-credentials', '--resource-group rg-devops-poc --name aks-devops-poc'], ['kubectl get nodes', ''],
+      ['az group delete', '--name rg-devops-poc --yes']
+    ]
+  };
+})();
+</script>
+
+<script>
+(function(){
+  var makeDockerCommands = window.__makeDockerCommands;
+  var makeKubectlCommands = window.__makeKubectlCommands;
+
+  var CRASH_LOGS =
+    '> devops-poc-app@1.0.0 start\n> node server.js\n\n' +
+    'Server listening on port 3000\nConnected to billing-api\nGET /healthz 200 3ms\nGET /api/users 200 12ms\n' +
+    'GET /api/upload 200 340ms\nGET /api/upload 200 512ms\n' +
+    "Error: ENOSPC: no space left on device, write '/app/tmp/upload-8827.tmp'\n" +
+    'FATAL: uncaught exception, shutting down\n';
+
+  var CRASH_EVENTS =
+    '  Type     Reason   Age                 From     Message\n' +
+    '  ----     ------   ----                ----     -------\n' +
+    '  Warning  BackOff  92s (x23 over 12m)  kubelet  Back-off restarting failed container\n';
+
+  function makeSystemCommands(state){
+    return {
+      curl: function(argv){
+        var showHeaders = argv.indexOf('-i') !== -1;
+        if (!state.serviceUp) return 'curl: (7) Failed to connect to localhost port 3000: Connection refused\n';
+        var body = '{"status":"ok"}';
+        return showHeaders ? 'HTTP/1.1 200 OK\nContent-Type: application/json\n\n' + body + '\n' : body + '\n';
+      },
+      df: function(){
+        return 'Filesystem      Size  Used  Avail Use% Mounted on\n' +
+               'overlay          20G  19.8G   120M  99% /\n' +
+               'tmpfs           1.0G     0    1.0G   0% /dev\n';
+      },
+      ss: function(){
+        return 'Netid  State   Recv-Q  Send-Q  Local Address:Port  Peer Address:Port\n' +
+               'tcp    LISTEN  0       128     127.0.0.1:22        0.0.0.0:*\n';
+      },
+      ps: function(){
+        return 'USER    PID  %CPU  %MEM  COMMAND\n' +
+               'root      1   0.0   0.1  /sbin/init\n' +
+               'kali    842   0.1   0.3  -zsh\n';
+      },
+      free: function(){
+        return '               total        used        free      shared  buff/cache   available\n' +
+               'Mem:            7.8G        2.1G        3.2G        180M        2.5G        5.4G\n' +
+               'Swap:           2.0G          0B        2.0G\n';
+      },
+      uptime: function(){ return ' 22:15:03 up 14 days,  3:22,  1 user,  load average: 0.42, 0.38, 0.31\n'; },
+      date: function(){ return 'Wed Jul  9 22:15:03 UTC 2026\n'; }
+    };
+  }
+
+  var CHALLENGES = [
+    { type: 'pattern', title: 'Check impact', prompt: 'Production users say <code>devops-poc-app</code> is down. Start by hitting its health endpoint.', patterns: [/^curl\b/i, /healthz/i], example: 'curl -i http://localhost:3000/healthz' },
+    { type: 'pattern', title: 'Check disk usage', prompt: 'Check filesystem usage on the host.', patterns: [/^df\b/i, /-h/i], example: 'df -h' },
+    { type: 'pattern', title: 'Check listening ports', prompt: 'Confirm whether anything is actually listening on port 3000.', patterns: [/^ss\b/i], example: 'ss -tulpn' },
+    { type: 'pattern', title: 'Check container status', prompt: 'Check the container\'s status (it may not show in a plain listing).', patterns: [/^docker\s+ps\b/i], example: 'docker ps -a' },
+    { type: 'pattern', title: 'Read the container logs', prompt: 'Read the tail of the container\'s logs for a clue.', patterns: [/^docker\s+logs\b/i, /devops-poc-app/i], example: 'docker logs --tail=50 devops-poc-app' },
+    { type: 'pattern', title: 'Check pod status', prompt: 'Check pod status in the <code>devops-poc</code> namespace.', patterns: [/^kubectl\s+get\s+pods?\b/i, /(-n|--namespace)[= ]?devops-poc/i], example: 'kubectl get pods -n devops-poc' },
+    { type: 'pattern', title: 'Read the pod logs', prompt: 'Read that pod\'s logs too — confirm it\'s the same failure.', patterns: [/^kubectl\s+logs\b/i], example: 'kubectl logs -n devops-poc -l app=devops-poc-app' },
+    {
+      type: 'freetext', title: 'Name the root cause',
+      prompt: 'Based on everything above, what actually caused the crash? Answer in your own words.',
+      gradeText: function(ans){
+        var a = ans.toLowerCase();
+        if (a.indexOf('enospc') !== -1) return true;
+        var mentionsStorage = /disk|filesystem|file system|storage|volume/.test(a);
+        var mentionsFull = /full|no space|out of space|ran out|exhausted|maxed/.test(a);
+        return mentionsStorage && mentionsFull;
+      },
+      hint: 'Two commands both pointed at the same resource — one showed it was nearly maxed out, the other showed the crash log naming the exact error code for it.',
+      explanation: 'Root cause: the node/container filesystem filled up (99% used). A write to a temp upload file then failed with ENOSPC and crashed the Node process. Kubernetes kept restarting the pod onto the same full disk, producing CrashLoopBackOff. Fix: clear disk space (old logs/images/temp files) and add disk-usage alerting so this pages someone before it takes the app down.'
+    }
+  ];
+
+  window.__labs.troubleshoot = {
+    id: 'troubleshoot',
+    badge: 'SRE',
+    name: 'Troubleshooting',
+    tagline: 'A real incident: diagnose why the app is down.',
+    windowTitle: 'kali@interview-prep: ~/incident',
+    promptBase: 'sre',
+    files: {},
+    makeState: function(){
+      return {
+        serviceUp: false,
+        docker: {
+          images: [{ repo: 'devops-poc-app', tag: 'local', id: 'a1b2c3d4e5f6', created: '2 hours ago', size: '142MB' }],
+          containers: [{ id: '9f8e7d6c5b4a', name: 'devops-poc-app', image: 'devops-poc-app:local', command: 'node server.js', status: 'exited', exitInfo: 'Exited (1) 4 minutes ago', ports: '', createdAgo: '2 hours ago', logs: CRASH_LOGS }]
+        },
+        k8s: {
+          pods: [{ name: 'devops-poc-app-7d9f8c6b5-abcde', ready: '0/1', status: 'CrashLoopBackOff', restarts: '7', age: '12m', logs: CRASH_LOGS, events: CRASH_EVENTS }],
+          deployment: { name: 'devops-poc-app', replicas: 1, available: 0, upToDate: 1 },
+          service: { name: 'devops-poc-service', type: 'ClusterIP', clusterIP: '10.96.45.112', ports: '80:31234/TCP' },
+          rolloutHistory: [], portForwardActive: false, nodes: []
+        }
+      };
+    },
+    makeCommands: function(state){
+      return Object.assign({}, makeSystemCommands(state), makeDockerCommands(state.docker), makeKubectlCommands(state.k8s));
+    },
+    challenges: CHALLENGES,
+    introLine: 'Incident: devops-poc-app is reportedly down. Where do you start?',
+    cheat: [
+      ['curl', '-i url/healthz'], ['df -h', ''], ['ss -tulpn', ''], ['docker ps', '-a'], ['docker logs', '--tail=N name'],
+      ['kubectl get pods', '-n devops-poc'], ['kubectl logs', '-n devops-poc -l app=devops-poc-app'],
+      ['ps / free / uptime / date', 'flavor commands']
+    ]
+  };
+})();
+</script>
+
+<script>
+(function(){
+  var E = window.__engine;
+  var LAB_ORDER = ['linux', 'docker', 'k8s', 'azure', 'troubleshoot'];
+
+  // ---------------------------------------------------------------
+  // Precompute 'output'-type expected results (once, per lab definition)
+  // ---------------------------------------------------------------
+  LAB_ORDER.forEach(function(id){
+    var def = window.__labs[id];
+    def.challenges.forEach(function(ch){
+      if (ch.type !== 'output') return;
+      var cfs = E.cloneFs(def.files || {});
+      var cstate = def.makeState ? def.makeState() : {};
+      var ccmds = Object.assign({}, window.__baseCommands, def.makeCommands ? def.makeCommands(cstate) : {});
+      var cwdState = { value: '' };
+      if (ch.setup) E.runPipeline(ch.setup, cfs, cwdState, ccmds);
+      var res = E.runPipeline(ch.canonical, cfs, cwdState, ccmds);
+      ch.expected = E.normalize(res.output || '');
+    });
+  });
+
+  // ---------------------------------------------------------------
+  // Lab instances (persist across hub <-> lab navigation)
+  // ---------------------------------------------------------------
+  var labInstances = {};
+  LAB_ORDER.forEach(function(id){ labInstances[id] = freshInstance(id); });
+
+  function freshInstance(id){
+    var def = window.__labs[id];
+    var state = def.makeState ? def.makeState() : {};
+    return {
+      def: def,
+      challenges: def.challenges,
+      files: E.cloneFs(def.files || {}),
+      cwd: { value: '' },
+      commands: Object.assign({}, window.__baseCommands, def.makeCommands ? def.makeCommands(state) : {}),
+      status: def.challenges.map(function(){ return 'pending'; }),
+      cmdHistory: [],
+      histPointer: -1,
+      scrollback: []
+    };
+  }
+
+  var currentLabId = null;
+  function activeLab(){ return labInstances[currentLabId]; }
+
+  // ---------------------------------------------------------------
+  // DOM refs
+  // ---------------------------------------------------------------
+  var hubView = document.getElementById('hubView');
+  var labView = document.getElementById('labView');
+  var hubGrid = document.getElementById('hubGrid');
+  var hubSummary = document.getElementById('hubSummary');
+  var homeBtn = document.getElementById('homeBtn');
+  var labNameTag = document.getElementById('labNameTag');
+  var chipsEl = document.getElementById('chips');
+  var scoreEl = document.getElementById('score');
+  var objLabel = document.getElementById('objLabel');
+  var objTitle = document.getElementById('objTitle');
+  var objPrompt = document.getElementById('objPrompt');
+  var hintBtn = document.getElementById('hintBtn');
+  var hintBox = document.getElementById('hintBox');
+  var skipBtn = document.getElementById('skipBtn');
+  var resetBtn = document.getElementById('resetBtn');
+  var allDoneEl = document.getElementById('allDone');
+  var objectivePanel = document.getElementById('objectivePanel');
+  var freetextRow = document.getElementById('freetextRow');
+  var freetextInput = document.getElementById('freetextInput');
+  var freetextSubmit = document.getElementById('freetextSubmit');
+  var termTitle = document.getElementById('termTitle');
+  var termBody = document.getElementById('termBody');
+  var livePromptBase = document.getElementById('livePromptBase');
+  var livePromptPath = document.getElementById('livePromptPath');
+  var input = document.getElementById('cmdInput');
+  var cheatGrid = document.getElementById('cheatGrid');
+
+  // ---------------------------------------------------------------
+  // Hub rendering
+  // ---------------------------------------------------------------
+  function progressOf(lab){
+    var solved = lab.status.filter(function(s){ return s === 'done'; }).length;
+    return { solved: solved, total: lab.status.length };
+  }
+
+  function renderHub(){
+    hubGrid.innerHTML = '';
+    var totalSolved = 0, totalAll = 0;
+    LAB_ORDER.forEach(function(id){
+      var lab = labInstances[id];
+      var def = lab.def;
+      var p = progressOf(lab);
+      totalSolved += p.solved; totalAll += p.total;
+      var pct = p.total ? Math.round((p.solved / p.total) * 100) : 0;
+
+      var card = document.createElement('button');
+      card.className = 'lab-card';
+      card.type = 'button';
+      card.innerHTML =
+        '<div class="card-top"><div class="badge">' + def.badge + '</div><div class="card-title">' + def.name + '</div></div>' +
+        '<div class="card-tagline">' + def.tagline + '</div>' +
+        '<div class="card-progress">' +
+        '<div class="card-progress-label"><span>' + p.solved + ' / ' + p.total + ' solved</span><span>' + pct + '%</span></div>' +
+        '<div class="bar"><div class="bar-fill' + (pct === 100 ? ' complete' : '') + '" style="width:' + pct + '%"></div></div>' +
+        '</div>';
+      card.addEventListener('click', function(){ enterLab(id); });
+      hubGrid.appendChild(card);
+    });
+    hubSummary.innerHTML = '<b>' + totalSolved + '</b> / ' + totalAll + ' objectives solved across ' + LAB_ORDER.length + ' labs.' +
+      (totalSolved === totalAll ? ' Everything cleared — nice.' : '');
+  }
+
+  // ---------------------------------------------------------------
+  // Lab view rendering
+  // ---------------------------------------------------------------
+  function currentIndex(lab){
+    for (var i = 0; i < lab.status.length; i++) if (lab.status[i] === 'pending') return i;
+    return -1;
+  }
+
+  function renderChips(){
+    var lab = activeLab();
+    chipsEl.innerHTML = '';
+    var cur = currentIndex(lab);
+    lab.status.forEach(function(s, i){
+      var d = document.createElement('div');
+      d.className = 'chip' + (s === 'done' ? ' done' : (i === cur ? ' current' : ''));
+      d.textContent = s === 'done' ? '✓' : String(i + 1);
+      chipsEl.appendChild(d);
+    });
+    var solved = lab.status.filter(function(s){ return s === 'done'; }).length;
+    scoreEl.innerHTML = '<b>' + solved + '</b> / ' + lab.status.length + ' solved';
+  }
+
+  function renderObjective(){
+    var lab = activeLab();
+    var idx = currentIndex(lab);
+    hintBox.classList.remove('open');
+    hintBox.innerHTML = '';
+    freetextRow.classList.remove('show');
+    freetextInput.value = '';
+
+    if (idx === -1){
+      objLabel.textContent = 'ALL OBJECTIVES CLEARED';
+      objTitle.textContent = '';
+      objPrompt.textContent = '';
+      document.querySelector('.objective-controls').style.display = 'none';
+      allDoneEl.classList.add('show');
+      return;
+    }
+    document.querySelector('.objective-controls').style.display = 'flex';
+    allDoneEl.classList.remove('show');
+    var ch = lab.challenges[idx];
+    objLabel.textContent = 'OBJECTIVE ' + (idx + 1) + ' / ' + lab.status.length;
+    objTitle.textContent = ch.title;
+    objPrompt.innerHTML = ch.prompt;
+    if (ch.type === 'freetext') freetextRow.classList.add('show');
+  }
+
+  function promptPathText(lab){
+    return lab.cwd.value ? '~/' + lab.cwd.value : '~';
+  }
+
+  function updateLivePrompt(){
+    var lab = activeLab();
+    if (!lab) return;
+    livePromptBase.textContent = lab.def.promptBase;
+    livePromptPath.textContent = promptPathText(lab);
+  }
+
+  function domForEntry(lab, entry){
+    if (entry.kind === 'cmd'){
+      var d = document.createElement('div');
+      d.className = 'line-cmd';
+      var user = document.createElement('span'); user.className = 'prompt-user'; user.textContent = 'kali';
+      var sym = document.createElement('span'); sym.className = 'prompt-sym'; sym.textContent = '@' + lab.def.promptBase + ':' + entry.promptPath + '$ ';
+      d.appendChild(user); d.appendChild(sym);
+      d.appendChild(document.createTextNode(entry.cmd));
+      return d;
+    }
+    var el = document.createElement('div');
+    el.className = entry.cls;
+    el.textContent = entry.text;
+    return el;
+  }
+
+  function renderScrollback(){
+    var lab = activeLab();
+    termBody.innerHTML = '';
+    lab.scrollback.forEach(function(entry){ termBody.appendChild(domForEntry(lab, entry)); });
+    termBody.scrollTop = termBody.scrollHeight;
+  }
+
+  function pushLine(lab, cls, text){
+    var entry = { kind: 'line', cls: cls, text: text };
+    lab.scrollback.push(entry);
+    if (activeLab() === lab) termBody.appendChild(domForEntry(lab, entry));
+  }
+
+  function pushCmd(lab, cmd){
+    var entry = { kind: 'cmd', cmd: cmd, promptPath: promptPathText(lab) };
+    lab.scrollback.push(entry);
+    if (activeLab() === lab) termBody.appendChild(domForEntry(lab, entry));
+  }
+
+  function scrollToBottom(){ termBody.scrollTop = termBody.scrollHeight; }
+
+  function checkCompletions(lab, rawCmd, res){
+    if (!res.ok) return [];
+    var newly = [];
+    lab.challenges.forEach(function(ch, i){
+      if (lab.status[i] !== 'pending') return;
+      if (ch.type === 'output'){
+        var norm = E.normalize(res.output || '');
+        if (norm && ch.expected && norm === ch.expected){ lab.status[i] = 'done'; newly.push(i); }
+      } else if (ch.type === 'pattern'){
+        if (ch.patterns.every(function(re){ return re.test(rawCmd); })){ lab.status[i] = 'done'; newly.push(i); }
+      }
+    });
+    return newly;
+  }
+
+  function runCommand(raw){
+    var lab = activeLab();
+    var trimmed = raw.trim();
+    if (!trimmed) return;
+    pushCmd(lab, raw);
+
+    if (trimmed === 'clear'){
+      lab.scrollback = [];
+      renderScrollback();
+      return;
+    }
+
+    var res = E.runPipeline(trimmed, lab.files, lab.cwd, lab.commands);
+    if (!res.ok){
+      pushLine(lab, 'line-err', res.error);
+    } else {
+      pushLine(lab, 'line-out', res.output ? res.output.replace(/\n$/, '') : '(no output)');
+      var newly = checkCompletions(lab, trimmed, res);
+      newly.forEach(function(i){ pushLine(lab, 'line-ok', '✓ Objective ' + (i + 1) + ' complete — ' + lab.challenges[i].title); });
+      if (newly.length){ renderChips(); renderObjective(); }
+    }
+    updateLivePrompt();
+    scrollToBottom();
+  }
+
+  // ---------------------------------------------------------------
+  // Tab completion
+  // ---------------------------------------------------------------
+  function pathCandidates(files, cwd){
+    var prefix = cwd ? cwd + '/' : '';
+    var set = {};
+    Object.keys(files).forEach(function(p){
+      if (cwd && p.indexOf(prefix) !== 0) return;
+      var rel = cwd ? p.slice(prefix.length) : p;
+      if (!rel) return;
+      set[rel] = true;
+      var parts = rel.split('/'), acc = '';
+      for (var i = 0; i < parts.length - 1; i++){ acc += parts[i] + '/'; set[acc] = true; }
+    });
+    if (cwd) set['../'] = true;
+    return Object.keys(set);
+  }
+
+  function currentWord(value, cursorPos){
+    var before = value.slice(0, cursorPos);
+    var m = before.match(/[^\s]*$/);
+    return { start: cursorPos - m[0].length, word: m[0] };
+  }
+
+  function isFirstToken(value, start){ return value.slice(0, start).trim().length === 0; }
+
+  function longestCommonPrefix(strs){
+    if (!strs.length) return '';
+    var prefix = strs[0];
+    for (var i = 1; i < strs.length; i++){
+      var s = strs[i], j = 0;
+      while (j < prefix.length && j < s.length && prefix[j] === s[j]) j++;
+      prefix = prefix.slice(0, j);
+      if (!prefix) return '';
+    }
+    return prefix;
+  }
+
+  function handleTabComplete(){
+    var lab = activeLab();
+    var value = input.value;
+    var cursorPos = input.selectionStart;
+    var wb = currentWord(value, cursorPos);
+    if (!wb.word) return;
+
+    var first = isFirstToken(value, wb.start);
+    var pool, hasDot = false, lookup = wb.word;
+
+    if (first){
+      pool = Object.keys(lab.commands);
+    } else {
+      hasDot = wb.word.indexOf('./') === 0;
+      lookup = hasDot ? wb.word.slice(2) : wb.word;
+      pool = pathCandidates(lab.files, lab.cwd.value);
+    }
+
+    var matches = pool.filter(function(c){ return c.indexOf(lookup) === 0; }).sort();
+    if (!matches.length) return;
+
+    var common = longestCommonPrefix(matches);
+    var completion = hasDot ? './' + common : common;
+
+    if (matches.length === 1){
+      var isDir = completion.charAt(completion.length - 1) === '/';
+      var suffix = isDir ? '' : ' ';
+      input.value = value.slice(0, wb.start) + completion + suffix + value.slice(cursorPos);
+      input.selectionStart = input.selectionEnd = wb.start + completion.length + suffix.length;
+    } else if (completion.length > lookup.length){
+      input.value = value.slice(0, wb.start) + completion + value.slice(cursorPos);
+      input.selectionStart = input.selectionEnd = wb.start + completion.length;
+    } else {
+      pushLine(lab, 'line-sys', matches.join('   '));
+      scrollToBottom();
+    }
+  }
+
+  // ---------------------------------------------------------------
+  // Navigation
+  // ---------------------------------------------------------------
+  function enterLab(id){
+    currentLabId = id;
+    var lab = activeLab();
+    hubView.style.display = 'none';
+    labView.style.display = 'block';
+    labNameTag.textContent = lab.def.name;
+    termTitle.textContent = lab.def.windowTitle;
+    cheatGrid.innerHTML = lab.def.cheat.map(function(pair){
+      return '<div><b>' + pair[0] + '</b> ' + pair[1] + '</div>';
+    }).join('');
+
+    if (!lab.scrollback.length) pushLine(lab, 'line-sys', lab.def.introLine);
+    renderScrollback();
+    renderChips();
+    renderObjective();
+    updateLivePrompt();
+    input.value = '';
+    input.focus();
+  }
+
+  function goHome(){
+    currentLabId = null;
+    labView.style.display = 'none';
+    hubView.style.display = 'block';
+    renderHub();
+  }
+
+  homeBtn.addEventListener('click', goHome);
+
+  // ---------------------------------------------------------------
+  // Input handling
+  // ---------------------------------------------------------------
+  input.addEventListener('keydown', function(e){
+    var lab = activeLab();
+    if (!lab) return;
+    if (e.key === 'Enter'){
+      var val = input.value;
+      if (val.trim()){ lab.cmdHistory.push(val); }
+      lab.histPointer = lab.cmdHistory.length;
+      input.value = '';
+      runCommand(val);
+    } else if (e.key === 'ArrowUp'){
+      if (lab.histPointer > 0){ lab.histPointer--; input.value = lab.cmdHistory[lab.histPointer]; setTimeout(function(){ input.selectionStart = input.selectionEnd = input.value.length; }); }
+      e.preventDefault();
+    } else if (e.key === 'ArrowDown'){
+      if (lab.histPointer < lab.cmdHistory.length - 1){ lab.histPointer++; input.value = lab.cmdHistory[lab.histPointer]; }
+      else { lab.histPointer = lab.cmdHistory.length; input.value = ''; }
+      e.preventDefault();
+    } else if (e.key === 'Tab'){
+      e.preventDefault();
+      handleTabComplete();
+    }
+  });
+
+  hintBtn.addEventListener('click', function(){
+    var lab = activeLab();
+    var idx = currentIndex(lab);
+    if (idx === -1) return;
+    var ch = lab.challenges[idx];
+    var open = hintBox.classList.toggle('open');
+    if (!open) return;
+    if (ch.type === 'output'){
+      var lines = [];
+      if (ch.setup) lines.push('<div>' + ch.setup + '</div>');
+      lines.push('<div class="cmd">' + ch.canonical + '</div>');
+      hintBox.innerHTML = lines.join('');
+    } else if (ch.type === 'pattern'){
+      hintBox.innerHTML = '<div class="cmd">' + ch.example + '</div>';
+    } else if (ch.type === 'freetext'){
+      hintBox.textContent = ch.hint || '';
+    }
+  });
+
+  skipBtn.addEventListener('click', function(){
+    var lab = activeLab();
+    var idx = currentIndex(lab);
+    if (idx === -1) return;
+    lab.status[idx] = 'skipped';
+    pushLine(lab, 'line-sys', '(skipped objective ' + (idx + 1) + ' — ' + lab.challenges[idx].title + ')');
+    renderChips();
+    renderObjective();
+    scrollToBottom();
+  });
+
+  resetBtn.addEventListener('click', function(){
+    var lab = activeLab();
+    labInstances[currentLabId] = freshInstance(currentLabId);
+    lab = activeLab();
+    pushLine(lab, 'line-sys', 'Lab reset.');
+    renderScrollback();
+    renderChips();
+    renderObjective();
+    updateLivePrompt();
+    input.focus();
+  });
+
+  freetextSubmit.addEventListener('click', function(){
+    var lab = activeLab();
+    var idx = currentIndex(lab);
+    if (idx === -1) return;
+    var ch = lab.challenges[idx];
+    if (ch.type !== 'freetext') return;
+    var answer = freetextInput.value.trim();
+    if (!answer) return;
+    pushLine(lab, 'line-sys', '> ' + answer);
+    if (ch.gradeText(answer)){
+      lab.status[idx] = 'done';
+      pushLine(lab, 'line-ok', '✓ Objective ' + (idx + 1) + ' complete — ' + ch.title);
+      pushLine(lab, 'line-sys', ch.explanation);
+      renderChips();
+      renderObjective();
+    } else {
+      pushLine(lab, 'line-err', 'Not quite — keep digging. Try "Show hint" if you\'re stuck.');
+      freetextInput.value = '';
+      freetextInput.focus();
+    }
+    scrollToBottom();
+  });
+  freetextInput.addEventListener('keydown', function(e){
+    if (e.key === 'Enter'){ e.preventDefault(); freetextSubmit.click(); }
+  });
+
+  // ---------------------------------------------------------------
+  // Boot
+  // ---------------------------------------------------------------
+  renderHub();
+})();
+</script>
